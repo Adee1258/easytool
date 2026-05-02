@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
-// ── WhatsApp message patterns (Android + iOS, 12hr + 24hr) ─────────────────
+// ── WhatsApp message patterns - comprehensive ──────────────────────────────
 const MSG_PATTERNS = [
   // Android 24hr: 12/03/2024, 14:30 - Name: msg
   /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\s+-\s+([^:]+):\s+(.+)$/,
@@ -20,11 +20,16 @@ const MSG_PATTERNS = [
   /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M)\s+-\s+([^:]+):\s+(.+)$/i,
   // iOS brackets: [12/03/2024, 14:30:00] Name: msg
   /^\[(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)\]\s+([^:]+):\s+(.+)$/i,
-  // New Android format: 12/3/24, 2:30 am - Name: msg (lowercase am/pm)
+  // lowercase am/pm
   /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s*[ap]m)\s+-\s+([^:]+):\s+(.+)$/,
-  // Format with en-dash: 12/03/2024, 14:30 – Name: msg
-  /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)\s+[–\-]\s+([^:]+):\s+(.+)$/i,
+  // en-dash separator
+  /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)\s+[–—]\s+([^:]+):\s+(.+)$/i,
+  // No comma after date: 12/03/2024 14:30 - Name: msg
+  /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)\s+-\s+([^:]+):\s+(.+)$/i,
 ]
+
+// System message patterns to skip
+const SYSTEM_MSG = /Messages and calls are end-to-end encrypted|Messages to this chat and calls|You created group|added|removed|left|changed the subject|changed this group|security code changed|Your security code|This message was deleted|null/i
 
 interface Message {
   date: string
@@ -34,11 +39,12 @@ interface Message {
   hour: number
   isMedia: boolean
   hasLink: boolean
+  isDeleted: boolean
 }
 
 interface ChatStats {
   messages: number
-  participants: Record<string, { count: number; words: number; media: number; emojis: number }>
+  participants: Record<string, { count: number; words: number; media: number; emojis: number; deleted: number }>
   hourly: number[]
   weekday: number[]
   daily: Record<string, number>
@@ -46,15 +52,53 @@ interface ChatStats {
   totalWords: number
   totalMedia: number
   totalLinks: number
+  totalDeleted: number
   firstDate: string
   lastDate: string
   avgPerDay: number
   longestMsg: number
   topWords: [string, number][]
-  responseTime: number
+  mediaTypes: Record<string, number>
 }
 
-const EMOJI_RE = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu
+// Comprehensive emoji regex - covers ALL Unicode emoji ranges
+const EMOJI_RE = new RegExp(
+  "(?:" +
+  "[\u{1F600}-\u{1F64F}]|" + // Emoticons
+  "[\u{1F300}-\u{1F5FF}]|" + // Misc Symbols and Pictographs
+  "[\u{1F680}-\u{1F6FF}]|" + // Transport and Map
+  "[\u{1F700}-\u{1F77F}]|" + // Alchemical Symbols
+  "[\u{1F780}-\u{1F7FF}]|" + // Geometric Shapes Extended
+  "[\u{1F800}-\u{1F8FF}]|" + // Supplemental Arrows-C
+  "[\u{1F900}-\u{1F9FF}]|" + // Supplemental Symbols and Pictographs
+  "[\u{1FA00}-\u{1FA6F}]|" + // Chess Symbols
+  "[\u{1FA70}-\u{1FAFF}]|" + // Symbols and Pictographs Extended-A
+  "[\u{2600}-\u{26FF}]|" + // Misc symbols
+  "[\u{2700}-\u{27BF}]|" + // Dingbats
+  "[\u{FE00}-\u{FE0F}]|" + // Variation Selectors
+  "[\u{1F1E0}-\u{1F1FF}]|" + // Flags
+  "[\u{231A}-\u{231B}]|" + // Watch, Hourglass
+  "[\u{23E9}-\u{23F3}]|" + // Various clock/media symbols
+  "[\u{25AA}-\u{25AB}]|" + // Small squares
+  "[\u{25B6}]|[\u{25C0}]|" + // Play/reverse buttons
+  "[\u{25FB}-\u{25FE}]|" + // Medium squares
+  "[\u{2614}-\u{2615}]|" + // Umbrella, hot beverage
+  "[\u{2648}-\u{2653}]|" + // Zodiac signs
+  "[\u{267F}]|[\u{2693}]|" + // Wheelchair, anchor
+  "[\u{26A1}]|[\u{26AA}-\u{26AB}]|" +
+  "[\u{26BD}-\u{26BE}]|[\u{26C4}-\u{26C5}]|" +
+  "[\u{26CE}]|[\u{26D4}]|[\u{26EA}]|" +
+  "[\u{26F2}-\u{26F3}]|[\u{26F5}]|[\u{26FA}]|[\u{26FD}]|" +
+  "[\u{2702}]|[\u{2705}]|[\u{2708}-\u{270D}]|[\u{270F}]|" +
+  "[\u{2712}]|[\u{2714}]|[\u{2716}]|[\u{271D}]|[\u{2721}]|" +
+  "[\u{2728}]|[\u{2733}-\u{2734}]|[\u{2744}]|[\u{2747}]|" +
+  "[\u{274C}]|[\u{274E}]|[\u{2753}-\u{2755}]|[\u{2757}]|" +
+  "[\u{2763}-\u{2764}]|[\u{2795}-\u{2797}]|[\u{27A1}]|[\u{27B0}]|[\u{27BF}]|" +
+  "[\u{2934}-\u{2935}]|[\u{2B05}-\u{2B07}]|[\u{2B1B}-\u{2B1C}]|" +
+  "[\u{2B50}]|[\u{2B55}]|[\u{3030}]|[\u{303D}]|[\u{3297}]|[\u{3299}]" +
+  ")",
+  "gu"
+)
 
 const STOP_WORDS = new Set([
   "the", "and", "for", "that", "this", "with", "have", "from", "they", "will",
@@ -64,6 +108,7 @@ const STOP_WORDS = new Set([
   "hum", "woh", "yeh", "isko", "usko", "kuch", "sab", "agar", "phir", "lekin",
   "but", "not", "are", "was", "has", "had", "its", "our", "can", "all", "one",
   "you", "him", "her", "his", "she", "who", "how", "why", "yes", "no", "ok",
+  "lol", "haha", "hehe", "hmm", "ohh", "ahh", "ooh", "umm", "ugh", "wow",
 ])
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -80,39 +125,73 @@ function getHour(timeStr: string): number {
   return 0
 }
 
+function detectMediaType(text: string): string | null {
+  if (/image omitted|<Media omitted>/i.test(text)) return "image"
+  if (/video omitted/i.test(text)) return "video"
+  if (/audio omitted|voice message/i.test(text)) return "audio"
+  if (/sticker omitted/i.test(text)) return "sticker"
+  if (/GIF omitted/i.test(text)) return "gif"
+  if (/document omitted/i.test(text)) return "document"
+  if (/Contact card omitted/i.test(text)) return "contact"
+  if (/Location:/i.test(text)) return "location"
+  return null
+}
+
 function parseChat(text: string): Message[] {
-  const lines = text.split(/\r?\n/)
+  // Remove BOM and special WhatsApp characters
+  const cleaned = text
+    .replace(/^\uFEFF/, "")
+    .replace(/\u200E/g, "")
+    .replace(/\u200F/g, "")
+    .replace(/\u202A/g, "")
+    .replace(/\u202C/g, "")
+
+  const lines = cleaned.split(/\r?\n/)
   const messages: Message[] = []
   let current: Message | null = null
 
   for (const line of lines) {
-    if (!line.trim()) continue
-    let matched = false
+    const trimmed = line.trim()
+    if (!trimmed) continue
 
+    let matched = false
     for (const pattern of MSG_PATTERNS) {
-      const m = line.match(pattern)
+      const m = trimmed.match(pattern)
       if (m) {
         if (current) messages.push(current)
         const msgText = m[4].trim()
+        const sender = m[3].trim()
+
+        // Skip system messages
+        if (SYSTEM_MSG.test(msgText) || SYSTEM_MSG.test(sender)) {
+          current = null
+          matched = true
+          break
+        }
+
+        const mediaType = detectMediaType(msgText)
         current = {
           date: m[1].trim(),
           time: m[2].trim(),
-          sender: m[3].trim(),
+          sender,
           text: msgText,
           hour: getHour(m[2].trim()),
-          isMedia: /<Media omitted>|image omitted|video omitted|audio omitted|sticker omitted|GIF omitted|document omitted/i.test(msgText),
+          isMedia: mediaType !== null,
           hasLink: /https?:\/\//i.test(msgText),
+          isDeleted: /This message was deleted|You deleted this message/i.test(msgText),
         }
         matched = true
         break
       }
     }
-    if (!matched && current && !line.startsWith("\u200E") && !line.startsWith("\u200F")) {
-      current.text += " " + line.trim()
+
+    // Multi-line message continuation
+    if (!matched && current) {
+      current.text += "\n" + trimmed
     }
   }
   if (current) messages.push(current)
-  return messages.filter(m => m.sender && !m.sender.includes("Messages to this chat"))
+  return messages
 }
 
 function computeStats(messages: Message[]): ChatStats {
@@ -122,46 +201,61 @@ function computeStats(messages: Message[]): ChatStats {
   const daily: Record<string, number> = {}
   const emojis: Record<string, number> = {}
   const wordFreq: Record<string, number> = {}
-  let totalWords = 0, totalMedia = 0, totalLinks = 0, longestMsg = 0
+  const mediaTypes: Record<string, number> = {}
+  let totalWords = 0, totalMedia = 0, totalLinks = 0, longestMsg = 0, totalDeleted = 0
 
   for (const msg of messages) {
-    // Participant stats
     if (!participants[msg.sender]) {
-      participants[msg.sender] = { count: 0, words: 0, media: 0, emojis: 0 }
+      participants[msg.sender] = { count: 0, words: 0, media: 0, emojis: 0, deleted: 0 }
     }
     participants[msg.sender].count++
-
     hourly[msg.hour]++
     daily[msg.date] = (daily[msg.date] || 0) + 1
 
-    // Try to get weekday from date
+    // Weekday
     try {
       const parts = msg.date.split(/[\/\.\-]/)
       if (parts.length === 3) {
-        const d = new Date(`${parts[2].length === 2 ? "20" + parts[2] : parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`)
+        let year = parts[2], month = parts[1], day = parts[0]
+        if (year.length === 2) year = "20" + year
+        const d = new Date(`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`)
         if (!isNaN(d.getTime())) weekday[d.getDay()]++
       }
     } catch { }
 
+    if (msg.isDeleted) {
+      totalDeleted++
+      participants[msg.sender].deleted++
+    }
+
     if (msg.isMedia) {
       totalMedia++
       participants[msg.sender].media++
+      const mt = detectMediaType(msg.text) || "other"
+      mediaTypes[mt] = (mediaTypes[mt] || 0) + 1
       continue
     }
+
     if (msg.hasLink) totalLinks++
 
-    // Emojis
-    const msgEmojis = msg.text.match(EMOJI_RE) || []
-    msgEmojis.forEach(e => {
-      emojis[e] = (emojis[e] || 0) + 1
-      participants[msg.sender].emojis++
+    // Extract ALL emojis properly
+    const msgText = msg.text
+    const foundEmojis = [...msgText.matchAll(EMOJI_RE)].map(m => m[0])
+    foundEmojis.forEach(e => {
+      // Normalize emoji (remove variation selectors)
+      const normalized = e.replace(/[\uFE00-\uFE0F]/g, "")
+      if (normalized) {
+        emojis[normalized] = (emojis[normalized] || 0) + 1
+        participants[msg.sender].emojis++
+      }
     })
 
-    // Words
-    const msgWords = msg.text.toLowerCase().match(/\b[a-z\u0600-\u06FF]{2,}\b/g) || []
+    // Words (including Urdu/Arabic)
+    const msgWords = msgText.toLowerCase().match(/\b[a-z]{2,}\b|\b[\u0600-\u06FF]{2,}\b/g) || []
     totalWords += msgWords.length
     participants[msg.sender].words += msgWords.length
-    longestMsg = Math.max(longestMsg, msg.text.length)
+    longestMsg = Math.max(longestMsg, msgText.length)
+
     msgWords.forEach(w => {
       if (!STOP_WORDS.has(w) && w.length > 2) {
         wordFreq[w] = (wordFreq[w] || 0) + 1
@@ -172,7 +266,7 @@ function computeStats(messages: Message[]): ChatStats {
   const days = Math.max(Object.keys(daily).length, 1)
   const topWords = Object.entries(wordFreq)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 12) as [string, number][]
+    .slice(0, 15) as [string, number][]
 
   return {
     messages: messages.length,
@@ -184,12 +278,13 @@ function computeStats(messages: Message[]): ChatStats {
     totalWords,
     totalMedia,
     totalLinks,
+    totalDeleted,
     firstDate: messages[0]?.date || "",
     lastDate: messages[messages.length - 1]?.date || "",
     avgPerDay: Math.round(messages.length / days),
     longestMsg,
     topWords,
-    responseTime: 0,
+    mediaTypes,
   }
 }
 
@@ -199,16 +294,14 @@ export default function WhatsAppChatAnalyzer() {
   const [loading, setLoading] = useState(false)
   const [fileName, setFileName] = useState("")
   const [error, setError] = useState("")
-  const [msgCount, setMsgCount] = useState(0)
 
   const processText = useCallback((text: string, name: string) => {
     const messages = parseChat(text)
     if (messages.length < 3) {
-      setError("Could not parse chat. Make sure you exported as .txt or .zip from WhatsApp (without media).")
+      setError("Could not parse chat. Make sure you exported as .txt or .zip from WhatsApp.")
       setLoading(false)
       return
     }
-    setMsgCount(messages.length)
     setStats(computeStats(messages))
     setFileName(name)
     setLoading(false)
@@ -226,22 +319,43 @@ export default function WhatsAppChatAnalyzer() {
       if (file.name.toLowerCase().endsWith(".zip")) {
         const JSZip = (await import("jszip")).default
         const zip = await JSZip.loadAsync(file)
+
+        // Find chat txt file - could be _chat.txt or WhatsApp Chat with *.txt
         const txtFile = Object.values(zip.files).find(f =>
-          !f.dir && (f.name.endsWith("_chat.txt") || f.name.endsWith(".txt"))
+          !f.dir && (
+            f.name.endsWith("_chat.txt") ||
+            f.name.endsWith(".txt") ||
+            f.name.toLowerCase().includes("chat")
+          )
         )
+
         if (!txtFile) {
           setError("No chat .txt found in ZIP. Export 'Without Media' from WhatsApp.")
           setLoading(false)
           return
         }
-        const text = await txtFile.async("string")
+
+        // Try UTF-8 first, fallback to latin1 for older exports
+        let text = ""
+        try {
+          text = await txtFile.async("string")
+        } catch {
+          const bytes = await txtFile.async("uint8array")
+          text = new TextDecoder("utf-8", { fatal: false }).decode(bytes)
+        }
+
         processText(text, file.name)
       } else {
-        const text = await file.text()
+        // TXT file - try multiple encodings
+        const bytes = await file.arrayBuffer()
+        let text = new TextDecoder("utf-8", { fatal: false }).decode(bytes)
+        if (!text || text.length < 10) {
+          text = new TextDecoder("utf-16le").decode(bytes)
+        }
         processText(text, file.name)
       }
-    } catch (e) {
-      setError("Failed to read file. Please try again.")
+    } catch (e: any) {
+      setError(`Failed to read file: ${e.message || "Unknown error"}. Please try again.`)
       setLoading(false)
     }
   }, [processText])
@@ -399,6 +513,22 @@ export default function WhatsAppChatAnalyzer() {
               </Card>
             ))}
           </div>
+
+          {/* Media breakdown */}
+          {Object.keys(stats.mediaTypes).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.mediaTypes).map(([type, count]) => (
+                <Badge key={type} variant="secondary" className="text-xs capitalize">
+                  {type === "image" ? "🖼️" : type === "video" ? "🎥" : type === "audio" ? "🎵" : type === "sticker" ? "🎭" : type === "gif" ? "🎞️" : type === "document" ? "📄" : "📎"} {type}: {count}
+                </Badge>
+              ))}
+              {stats.totalDeleted > 0 && (
+                <Badge variant="secondary" className="text-xs text-red-600 bg-red-100 dark:bg-red-900/30">
+                  🗑️ Deleted: {stats.totalDeleted}
+                </Badge>
+              )}
+            </div>
+          )}
 
           {/* More Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
