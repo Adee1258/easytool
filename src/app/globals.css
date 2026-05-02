@@ -174,7 +174,7 @@
 /* ── Tool Card ── */
 .tool-card {
   @apply relative overflow-hidden rounded-2xl border bg-card transition-all duration-300;
-  @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30;
+  @apply hover:-translate-y-1 hover:shadow-xl hover:border-primary/30;
 }
 
 .tool-card::before {
