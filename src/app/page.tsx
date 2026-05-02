@@ -237,7 +237,7 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <div className="space-y-4 fade-up reveal reveal-1">
+          <div className="space-y-4 fade-up">
             <h1 className="display-text max-w-5xl">
               AI-Powered Tools for Everyone
               <br />
@@ -245,11 +245,11 @@ export default function Home() {
             </h1>
 
             {/* Typing Animation */}
-            <div className="flex items-center justify-center gap-3 text-xl md:text-2xl font-bold text-muted-foreground">
+            <div className="flex items-center justify-center gap-2 text-lg md:text-xl font-bold text-muted-foreground flex-wrap">
               <span>Your work is</span>
-              <span className="inline-flex items-center min-w-[180px] text-primary">
-                {displayText}
-                <span className="ml-0.5 w-0.5 h-6 bg-primary inline-block animate-pulse" />
+              <span className="inline-flex items-center text-primary font-black">
+                <span className="min-w-[140px] md:min-w-[180px] text-left">{displayText}</span>
+                <span className="w-[2px] h-5 md:h-6 bg-primary inline-block animate-pulse ml-0.5 flex-shrink-0" />
               </span>
             </div>
 
@@ -259,7 +259,7 @@ export default function Home() {
           </div>
 
           {/* Search Bar */}
-          <div ref={searchRef} className="w-full max-w-2xl relative fade-up reveal reveal-2 search-glow">
+          <div ref={searchRef} className="w-full max-w-2xl relative search-glow">
             <div className={cn(
               "relative flex items-center rounded-2xl border-2 bg-card shadow-xl transition-all duration-300",
               showSearch || searchQuery ? "border-primary/40 shadow-primary/10" : "border-border hover:border-primary/25"
@@ -269,7 +269,7 @@ export default function Home() {
                 ref={inputRef}
                 type="text"
                 placeholder="Search tools... (PDF, Image, Calculator...)"
-                className="w-full h-14 md:h-16 pl-14 pr-5 bg-transparent text-base md:text-lg font-medium outline-none placeholder:text-muted-foreground/60"
+                className="w-full h-14 md:h-16 pl-14 pr-5 bg-card text-foreground text-base md:text-lg font-medium outline-none placeholder:text-muted-foreground/60 rounded-2xl"
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setShowSearch(true) }}
                 onFocus={() => setShowSearch(true)}
@@ -315,13 +315,13 @@ export default function Home() {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-wrap justify-center gap-2 fade-up">
-            <span className="text-sm text-muted-foreground self-center">Popular:</span>
-            {tools.filter(t => t.isPopular).slice(0, 5).map(t => (
+          <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
+            <span className="text-sm text-muted-foreground self-center font-medium">Popular:</span>
+            {tools.filter(t => t.isPopular).slice(0, 4).map(t => (
               <Link
                 key={t.id}
                 href={`/tools/${t.slug}`}
-                className="text-sm font-medium px-3 py-1.5 rounded-full bg-muted/60 hover:bg-primary/10 hover:text-primary border border-border hover:border-primary/25 transition-all"
+                className="text-xs md:text-sm font-semibold px-3 py-1.5 rounded-full bg-card hover:bg-primary/10 hover:text-primary border border-border hover:border-primary/25 transition-all whitespace-nowrap"
               >
                 {t.name}
               </Link>
