@@ -6,7 +6,7 @@ import {
   FileCheck, CheckCircle2, XCircle, AlertCircle,
   TrendingUp, Loader2, Download, RefreshCw,
   Target, Zap, Award, BookOpen, Briefcase, User,
-  Upload, FileText, Image, File
+  Upload
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -348,10 +348,10 @@ export default function ResumeATSChecker() {
 
   const getFileIcon = (name: string) => {
     const ext = name.split(".").pop()?.toLowerCase()
-    if (ext === "pdf") return <FileText className="h-5 w-5 text-red-500" />
-    if (ext === "docx" || ext === "doc") return <FileText className="h-5 w-5 text-blue-500" />
-    if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) return <Image className="h-5 w-5 text-green-500" />
-    return <File className="h-5 w-5 text-muted-foreground" />
+    if (ext === "pdf") return "📄"
+    if (ext === "docx" || ext === "doc") return "📝"
+    if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) return "🖼️"
+    return "📎"
   }
 
   return (
