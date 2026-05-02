@@ -9,25 +9,29 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
-    // Fix for pdf-lib and other browser-only packages
-    if (isServer) {
+    if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        canvas: false,
         fs: false,
         path: false,
+        crypto: false,
       }
     }
 
-    // Fix for react-pdf / pdfjs worker
+    // Fix for onnxruntime-web WebGPU - mark as external
+    config.externals = config.externals || []
+    if (isServer) {
+      config.externals.push('onnxruntime-web')
+    }
+
+    // Ignore optional WebGPU module
     config.resolve.alias = {
       ...config.resolve.alias,
-      canvas: false,
+      'onnxruntime-web/webgpu': false,
     }
 
     return config
   },
-  // Suppress specific warnings from pdf-lib
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
