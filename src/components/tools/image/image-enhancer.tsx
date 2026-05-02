@@ -165,6 +165,7 @@ export default function ImageEnhancer() {
   const [processing, setProcessing] = useState(false)
   const [upscaleLevel, setUpscaleLevel] = useState(1)
   const [upscaleProgress, setUpscaleProgress] = useState(0)
+  const [progressMsg, setProgressMsg] = useState("")
   const [originalSize, setOriginalSize] = useState({ w: 0, h: 0 })
   const imgRef = useRef<HTMLImageElement | null>(null)
 
@@ -227,97 +228,50 @@ export default function ImageEnhancer() {
     applyAndPreview(s, upscaleLevel)
   }
 
-  // Upscale Buttons - AI powered via API
+  // Upscale Buttons - Custom AI-like processing (no API needed)
   const UPSCALE_OPTIONS = [
-    { scale: 1, label: "Original", desc: `${originalSize.w}×${originalSize.h}`, ai: false },
-    { scale: 2, label: "2x HD", desc: `${originalSize.w * 2}×${originalSize.h * 2}`, ai: false },
-    { scale: 4, label: "4x AI", desc: `${originalSize.w * 4}×${originalSize.h * 4}`, ai: true },
-    { scale: 8, label: "8x Ultra", desc: `${originalSize.w * 8}×${originalSize.h * 8}`, ai: true },
+    { scale: 1 as const, label: "Original", desc: `${originalSize.w}×${originalSize.h}`, ai: false },
+    { scale: 2 as const, label: "2x HD", desc: `${originalSize.w * 2}×${originalSize.h * 2}`, ai: true },
+    { scale: 4 as const, label: "4x 4K", desc: `${originalSize.w * 4}×${originalSize.h * 4}`, ai: true },
+    { scale: 8 as const, label: "8x Ultra", desc: `${originalSize.w * 8}×${originalSize.h * 8}`, ai: true },
   ]
 
-  const handleUpscale = async (scale: number, useAI: boolean) => {
+  const handleUpscale = async (scale: 1 | 2 | 4 | 8, useAI: boolean) => {
     setUpscaleLevel(scale)
 
-    if (!useAI || scale <= 2) {
-      // Canvas-based for 1x/2x
-      applyAndPreview(settings, scale)
+    if (!useAI || scale === 1) {
+      applyAndPreview(settings, 1)
       return
     }
 
-    // AI upscaling via API
-    if (!originalFile) return
+    const img = imgRef.current
+    if (!img) return
+
     setProcessing(true)
-    setUpscaleProgress(10)
+    setUpscaleProgress(5)
 
     try {
-      toast.info(`Starting ${scale}x AI upscaling... this may take 30-60 seconds.`)
+      const { upscaleImage, getOutputSize } = await import("@/lib/image-upscaler")
+      const sizeInfo = getOutputSize(originalSize.w, originalSize.h, scale)
+      toast.info(`Upscaling to ${sizeInfo.label}... please wait.`)
 
-      const formData = new FormData()
-      formData.append("image", originalFile)
-      formData.append("scale", "4")
-
-      setUpscaleProgress(30)
-
-      const response = await fetch("/api/upscale", {
-        method: "POST",
-        body: formData,
+      const resultUrl = await upscaleImage(img, {
+        targetScale: scale,
+        onProgress: (p, msg) => {
+          setUpscaleProgress(p)
+          setProgressMsg(msg)
+        },
       })
 
-      setUpscaleProgress(80)
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}))
-        throw new Error(err.error || "Upscaling failed")
-      }
-
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-
-      // If 8x requested, run 4x twice
-      if (scale === 8) {
-        toast.info("Running second pass for 8x...")
-        setUpscaleProgress(85)
-
-        const img2 = new Image()
-        img2.src = url
-        await new Promise(r => { img2.onload = r })
-
-        // Convert to file for second pass
-        const canvas2 = document.createElement("canvas")
-        canvas2.width = img2.width
-        canvas2.height = img2.height
-        canvas2.getContext("2d")!.drawImage(img2, 0, 0)
-        const blob2 = await new Promise<Blob>(r => canvas2.toBlob(b => r(b!), "image/jpeg", 0.95))
-        const file2 = new File([blob2], "pass2.jpg", { type: "image/jpeg" })
-
-        const fd2 = new FormData()
-        fd2.append("image", file2)
-        fd2.append("scale", "4")
-
-        const res2 = await fetch("/api/upscale", { method: "POST", body: fd2 })
-        if (res2.ok) {
-          const blob3 = await res2.blob()
-          const url3 = URL.createObjectURL(blob3)
-          setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return url3 })
-          setUpscaleProgress(100)
-          toast.success(`8x AI upscaling complete!`)
-        } else {
-          // Use 4x result
-          setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return url })
-          toast.success("4x AI upscaling complete! (8x requires more processing)")
-        }
-      } else {
-        setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return url })
-        setUpscaleProgress(100)
-        toast.success(`4x AI upscaling complete!`)
-      }
+      setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return resultUrl })
+      toast.success(`✨ ${scale}x done! Output: ${sizeInfo.w}×${sizeInfo.h}px`)
     } catch (err: any) {
-      toast.error(err.message || "AI upscaling failed. Try canvas upscaling instead.")
-      // Fallback to canvas
-      applyAndPreview(settings, Math.min(scale, 4))
+      toast.error("Upscaling failed. Try a smaller image.")
+      applyAndPreview(settings, 1)
     } finally {
       setProcessing(false)
       setUpscaleProgress(0)
+      setProgressMsg("")
     }
   }
 
