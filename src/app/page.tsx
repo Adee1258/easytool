@@ -72,11 +72,12 @@ function ToolCard({ tool }: { tool: typeof tools[0] }) {
       <div className={cn(
         "relative h-full p-5 rounded-2xl border bg-card transition-all duration-300",
         "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/8",
-        "hover:border-primary/25 active:scale-[0.98]"
+        "hover:border-primary/25 active:scale-[0.98]",
+        "card-shimmer icon-bounce"
       )}>
         {/* Icon */}
         <div className={cn(
-          "w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110",
+          "bounce-icon w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110",
           colors.bg, colors.border, "border"
         )}>
           <IconComponent className={cn("h-5 w-5", colors.text)} />
@@ -186,23 +187,29 @@ export default function Home() {
       <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden">
         {/* Blobs */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-gradient-to-r from-violet-600/15 via-purple-500/10 to-fuchsia-600/15 rounded-full blur-[120px]" />
-          <div className="absolute top-20 -left-32 w-72 h-72 bg-blue-500/8 rounded-full blur-[80px]" />
-          <div className="absolute top-40 -right-32 w-72 h-72 bg-pink-500/8 rounded-full blur-[80px]" />
+          <div className="blob-1 absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-gradient-to-r from-violet-600/15 via-purple-500/10 to-fuchsia-600/15 rounded-full blur-[120px]" />
+          <div className="blob-2 absolute top-20 -left-32 w-72 h-72 bg-blue-500/8 rounded-full blur-[80px]" />
+          <div className="blob-3 absolute top-40 -right-32 w-72 h-72 bg-pink-500/8 rounded-full blur-[80px]" />
+          {/* Floating Particles */}
+          <div className="particle particle-1 w-2 h-2 bg-violet-500/40 top-[20%] left-[15%]" />
+          <div className="particle particle-2 w-1.5 h-1.5 bg-pink-500/40 top-[35%] left-[80%]" />
+          <div className="particle particle-3 w-2.5 h-2.5 bg-blue-500/30 top-[60%] left-[25%]" />
+          <div className="particle particle-4 w-1 h-1 bg-fuchsia-500/50 top-[15%] left-[65%]" />
+          <div className="particle particle-5 w-2 h-2 bg-cyan-500/30 top-[70%] left-[70%]" />
         </div>
 
         <div className="container flex flex-col items-center text-center space-y-8">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 border border-primary/15 text-primary text-sm font-semibold fade-up">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 border border-primary/15 text-primary text-sm font-semibold fade-up reveal">
             <Sparkles className="h-4 w-4" />
             50+ Free Professional Tools
           </div>
 
           {/* Headline */}
-          <div className="space-y-3 fade-up">
+          <div className="space-y-3 fade-up reveal reveal-1">
             <h1 className="display-text max-w-4xl">
               All Your Tools,{" "}
-              <span className="gradient-text">One Place</span>
+              <span className="animated-gradient">One Place</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               PDF, Image, Text, Finance & more — 100% free, no signup, works in your browser.
@@ -210,7 +217,7 @@ export default function Home() {
           </div>
 
           {/* Search Bar */}
-          <div ref={searchRef} className="w-full max-w-2xl relative fade-up">
+          <div ref={searchRef} className="w-full max-w-2xl relative fade-up reveal reveal-2 search-glow">
             <div className={cn(
               "relative flex items-center rounded-2xl border-2 bg-card shadow-xl transition-all duration-300",
               showSearch || searchQuery ? "border-primary/40 shadow-primary/10" : "border-border hover:border-primary/25"
@@ -290,12 +297,12 @@ export default function Home() {
             { value: "10M+", label: "Files Processed", icon: FileText, color: "text-emerald-500" },
             { value: "99.9%", label: "Uptime", icon: Globe, color: "text-amber-500" },
           ].map((s, i) => (
-            <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-card border border-border hover:border-primary/20 transition-all group">
+            <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-card border border-border hover:border-primary/20 transition-all group card-shimmer hover-lift">
               <div className="p-2.5 rounded-xl bg-muted group-hover:scale-110 transition-transform">
                 <s.icon className={cn("h-5 w-5", s.color)} />
               </div>
               <div>
-                <div className="text-2xl font-black">{s.value}</div>
+                <div className="text-2xl font-black stat-pop">{s.value}</div>
                 <div className="text-xs text-muted-foreground font-medium">{s.label}</div>
               </div>
             </div>

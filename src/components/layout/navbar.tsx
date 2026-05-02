@@ -104,13 +104,13 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-            <div className="relative w-8 h-8">
+            <div className="relative w-8 h-8 logo-pulse">
               <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity" />
               <div className="relative w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
             </div>
-            <span className="font-black text-xl tracking-tight gradient-text hidden sm:block">
+            <span className="font-black text-xl tracking-tight animated-gradient hidden sm:block">
               EasyTool
             </span>
           </Link>
