@@ -8,7 +8,7 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -18,16 +18,19 @@ const nextConfig = {
       }
     }
 
-    // Fix for onnxruntime-web WebGPU - mark as external
-    config.externals = config.externals || []
-    if (isServer) {
-      config.externals.push('onnxruntime-web')
-    }
+    // Fix for @imgly/background-removal - onnxruntime-web optional WebGPU backend
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^onnxruntime-web\/webgpu$/,
+      })
+    )
 
-    // Ignore optional WebGPU module
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'onnxruntime-web/webgpu': false,
+    // Also handle the non-webgpu onnxruntime-web on server
+    if (isServer) {
+      config.externals = [
+        ...(Array.isArray(config.externals) ? config.externals : [config.externals]),
+        'onnxruntime-web',
+      ]
     }
 
     return config
