@@ -15,14 +15,14 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
 const PRESETS = [
-  { id: "auto", label: "✨ Auto", settings: { brightness: 108, contrast: 115, saturation: 120, sharpness: 40, warmth: 5, highlights: -10, shadows: 15, denoise: 20 } },
-  { id: "portrait", label: "👤 Portrait", settings: { brightness: 105, contrast: 108, saturation: 110, sharpness: 30, warmth: 10, highlights: -15, shadows: 20, denoise: 30 } },
-  { id: "vivid", label: "🌈 Vivid", settings: { brightness: 105, contrast: 125, saturation: 145, sharpness: 50, warmth: 0, highlights: -5, shadows: 10, denoise: 10 } },
-  { id: "natural", label: "🌿 Natural", settings: { brightness: 102, contrast: 105, saturation: 105, sharpness: 20, warmth: 3, highlights: -5, shadows: 8, denoise: 15 } },
-  { id: "dramatic", label: "🎭 Dramatic", settings: { brightness: 95, contrast: 140, saturation: 115, sharpness: 60, warmth: -5, highlights: -20, shadows: 5, denoise: 5 } },
-  { id: "bw", label: "⬛ B&W", settings: { brightness: 105, contrast: 120, saturation: 0, sharpness: 40, warmth: 0, highlights: -10, shadows: 15, denoise: 20 } },
-  { id: "warm", label: "🌅 Warm", settings: { brightness: 108, contrast: 110, saturation: 120, sharpness: 25, warmth: 25, highlights: -8, shadows: 12, denoise: 15 } },
-  { id: "cool", label: "❄️ Cool", settings: { brightness: 105, contrast: 112, saturation: 115, sharpness: 30, warmth: -20, highlights: -5, shadows: 10, denoise: 15 } },
+  { id: "auto", label: "✨ Auto", settings: { brightness: 105, contrast: 112, saturation: 115, sharpness: 25, warmth: 3, highlights: -8, shadows: 12, denoise: 0 } },
+  { id: "portrait", label: "👤 Portrait", settings: { brightness: 103, contrast: 108, saturation: 108, sharpness: 20, warmth: 5, highlights: -12, shadows: 18, denoise: 0 } },
+  { id: "vivid", label: "🌈 Vivid", settings: { brightness: 103, contrast: 120, saturation: 140, sharpness: 35, warmth: 0, highlights: -5, shadows: 8, denoise: 0 } },
+  { id: "natural", label: "🌿 Natural", settings: { brightness: 101, contrast: 103, saturation: 103, sharpness: 15, warmth: 2, highlights: -3, shadows: 5, denoise: 0 } },
+  { id: "dramatic", label: "🎭 Dramatic", settings: { brightness: 97, contrast: 135, saturation: 112, sharpness: 45, warmth: -3, highlights: -18, shadows: 3, denoise: 0 } },
+  { id: "bw", label: "⬛ B&W", settings: { brightness: 103, contrast: 118, saturation: 0, sharpness: 30, warmth: 0, highlights: -8, shadows: 12, denoise: 0 } },
+  { id: "warm", label: "🌅 Warm", settings: { brightness: 105, contrast: 108, saturation: 115, sharpness: 20, warmth: 15, highlights: -6, shadows: 10, denoise: 0 } },
+  { id: "cool", label: "❄️ Cool", settings: { brightness: 103, contrast: 110, saturation: 112, sharpness: 22, warmth: -12, highlights: -4, shadows: 8, denoise: 0 } },
 ]
 
 interface Settings {
@@ -41,7 +41,7 @@ const DEFAULT: Settings = {
   sharpness: 0, warmth: 0, highlights: 0, shadows: 0, denoise: 0
 }
 
-// ── Canvas Enhancement ─────────────────────────────────────────────────────
+// ── Canvas Enhancement - Fixed ─────────────────────────────────────────────
 function enhanceImage(img: HTMLImageElement, s: Settings, scale: number): HTMLCanvasElement {
   const w = Math.round(img.width * scale)
   const h = Math.round(img.height * scale)
@@ -51,70 +51,105 @@ function enhanceImage(img: HTMLImageElement, s: Settings, scale: number): HTMLCa
   canvas.height = h
   const ctx = canvas.getContext("2d")!
 
-  // Use high-quality image smoothing for upscaling
+  // Step 1: Draw with high quality smoothing
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = "high"
   ctx.drawImage(img, 0, 0, w, h)
 
+  // Step 2: Apply pixel-level adjustments
   const imageData = ctx.getImageData(0, 0, w, h)
   const data = imageData.data
 
-  const brightness = (s.brightness - 100) * 2.55
-  const contrast = s.contrast / 100
-  const saturation = s.saturation / 100
-  const warmth = s.warmth * 2.5
-  const highlights = s.highlights / 100
-  const shadows = s.shadows / 100
+  // Normalize values properly
+  const brightness = (s.brightness - 100) / 100  // -0.5 to +0.5
+  const contrast = s.contrast / 100               // 0.5 to 2.0
+  const saturation = s.saturation / 100           // 0 to 2.0
+  const warmth = s.warmth * 0.8                   // -40 to +40 (subtle)
+  const highlights = s.highlights / 200           // -0.25 to +0.25
+  const shadows = s.shadows / 200                 // -0.25 to +0.25
 
   for (let i = 0; i < data.length; i += 4) {
-    let r = data[i], g = data[i + 1], b = data[i + 2]
+    let r = data[i] / 255
+    let g = data[i + 1] / 255
+    let b = data[i + 2] / 255
 
-    // Brightness
-    r += brightness; g += brightness; b += brightness
+    // 1. Brightness (additive)
+    r += brightness
+    g += brightness
+    b += brightness
 
-    // Contrast
-    r = (r - 128) * contrast + 128
-    g = (g - 128) * contrast + 128
-    b = (b - 128) * contrast + 128
+    // 2. Contrast (around midpoint)
+    r = (r - 0.5) * contrast + 0.5
+    g = (g - 0.5) * contrast + 0.5
+    b = (b - 0.5) * contrast + 0.5
 
-    // Warmth
-    r += warmth; b -= warmth
-
-    // Highlights & Shadows
-    const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255
-    if (lum > 0.5) {
-      const f = (lum - 0.5) * 2
-      r += r * highlights * f; g += g * highlights * f; b += b * highlights * f
-    } else {
-      const f = (0.5 - lum) * 2
-      r += r * shadows * f; g += g * shadows * f; b += b * shadows * f
+    // 3. Warmth (subtle red/blue shift only)
+    if (warmth !== 0) {
+      const w = warmth / 255
+      r = Math.min(1, r + w)
+      b = Math.max(0, b - w * 0.5)
     }
 
-    // Saturation
-    const gray = r * 0.299 + g * 0.587 + b * 0.114
-    r = gray + (r - gray) * saturation
-    g = gray + (g - gray) * saturation
-    b = gray + (b - gray) * saturation
+    // 4. Highlights & Shadows (luminosity-based)
+    const lum = r * 0.299 + g * 0.587 + b * 0.114
+    if (lum > 0.5 && highlights !== 0) {
+      const f = (lum - 0.5) * 2 * highlights
+      r = Math.min(1, r + f)
+      g = Math.min(1, g + f)
+      b = Math.min(1, b + f)
+    } else if (lum <= 0.5 && shadows !== 0) {
+      const f = (0.5 - lum) * 2 * shadows
+      r = Math.min(1, r + f)
+      g = Math.min(1, g + f)
+      b = Math.min(1, b + f)
+    }
 
-    data[i] = Math.max(0, Math.min(255, r))
-    data[i + 1] = Math.max(0, Math.min(255, g))
-    data[i + 2] = Math.max(0, Math.min(255, b))
+    // 5. Saturation (proper HSL-based)
+    if (saturation !== 1) {
+      const gray = r * 0.299 + g * 0.587 + b * 0.114
+      r = gray + (r - gray) * saturation
+      g = gray + (g - gray) * saturation
+      b = gray + (b - gray) * saturation
+    }
+
+    // Clamp and write back
+    data[i] = Math.round(Math.max(0, Math.min(255, r * 255)))
+    data[i + 1] = Math.round(Math.max(0, Math.min(255, g * 255)))
+    data[i + 2] = Math.round(Math.max(0, Math.min(255, b * 255)))
   }
 
   ctx.putImageData(imageData, 0, 0)
 
-  // Sharpness via canvas filter
+  // Step 3: Sharpness via proper unsharp mask (no composite mode)
   if (s.sharpness > 0) {
-    const tmp = document.createElement("canvas")
-    tmp.width = w; tmp.height = h
-    const tCtx = tmp.getContext("2d")!
-    tCtx.drawImage(canvas, 0, 0)
+    const strength = s.sharpness / 100
+    const sharpData = ctx.getImageData(0, 0, w, h)
+    const sd = sharpData.data
+    const orig = new Uint8ClampedArray(sd)
 
-    ctx.globalCompositeOperation = "overlay"
-    ctx.globalAlpha = s.sharpness / 200
-    ctx.drawImage(tmp, 0, 0)
-    ctx.globalCompositeOperation = "source-over"
-    ctx.globalAlpha = 1
+    // Simple 3x3 sharpen kernel
+    const kernel = [
+      0, -strength, 0,
+      -strength, 1 + 4 * strength, -strength,
+      0, -strength, 0
+    ]
+
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const idx = (y * w + x) * 4
+        for (let c = 0; c < 3; c++) {
+          let val = 0
+          for (let ky = -1; ky <= 1; ky++) {
+            for (let kx = -1; kx <= 1; kx++) {
+              const kidx = ((y + ky) * w + (x + kx)) * 4 + c
+              val += orig[kidx] * kernel[(ky + 1) * 3 + (kx + 1)]
+            }
+          }
+          sd[idx + c] = Math.max(0, Math.min(255, val))
+        }
+      }
+    }
+    ctx.putImageData(sharpData, 0, 0)
   }
 
   return canvas
@@ -129,6 +164,7 @@ export default function ImageEnhancer() {
   const [activePreset, setActivePreset] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
   const [upscaleLevel, setUpscaleLevel] = useState(1)
+  const [upscaleProgress, setUpscaleProgress] = useState(0)
   const [originalSize, setOriginalSize] = useState({ w: 0, h: 0 })
   const imgRef = useRef<HTMLImageElement | null>(null)
 
@@ -191,9 +227,98 @@ export default function ImageEnhancer() {
     applyAndPreview(s, upscaleLevel)
   }
 
-  const handleUpscale = (scale: number) => {
+  // Upscale Buttons - AI powered via API
+  const UPSCALE_OPTIONS = [
+    { scale: 1, label: "Original", desc: `${originalSize.w}×${originalSize.h}`, ai: false },
+    { scale: 2, label: "2x HD", desc: `${originalSize.w * 2}×${originalSize.h * 2}`, ai: false },
+    { scale: 4, label: "4x AI", desc: `${originalSize.w * 4}×${originalSize.h * 4}`, ai: true },
+    { scale: 8, label: "8x Ultra", desc: `${originalSize.w * 8}×${originalSize.h * 8}`, ai: true },
+  ]
+
+  const handleUpscale = async (scale: number, useAI: boolean) => {
     setUpscaleLevel(scale)
-    applyAndPreview(settings, scale)
+
+    if (!useAI || scale <= 2) {
+      // Canvas-based for 1x/2x
+      applyAndPreview(settings, scale)
+      return
+    }
+
+    // AI upscaling via API
+    if (!originalFile) return
+    setProcessing(true)
+    setUpscaleProgress(10)
+
+    try {
+      toast.info(`Starting ${scale}x AI upscaling... this may take 30-60 seconds.`)
+
+      const formData = new FormData()
+      formData.append("image", originalFile)
+      formData.append("scale", "4")
+
+      setUpscaleProgress(30)
+
+      const response = await fetch("/api/upscale", {
+        method: "POST",
+        body: formData,
+      })
+
+      setUpscaleProgress(80)
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err.error || "Upscaling failed")
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+
+      // If 8x requested, run 4x twice
+      if (scale === 8) {
+        toast.info("Running second pass for 8x...")
+        setUpscaleProgress(85)
+
+        const img2 = new Image()
+        img2.src = url
+        await new Promise(r => { img2.onload = r })
+
+        // Convert to file for second pass
+        const canvas2 = document.createElement("canvas")
+        canvas2.width = img2.width
+        canvas2.height = img2.height
+        canvas2.getContext("2d")!.drawImage(img2, 0, 0)
+        const blob2 = await new Promise<Blob>(r => canvas2.toBlob(b => r(b!), "image/jpeg", 0.95))
+        const file2 = new File([blob2], "pass2.jpg", { type: "image/jpeg" })
+
+        const fd2 = new FormData()
+        fd2.append("image", file2)
+        fd2.append("scale", "4")
+
+        const res2 = await fetch("/api/upscale", { method: "POST", body: fd2 })
+        if (res2.ok) {
+          const blob3 = await res2.blob()
+          const url3 = URL.createObjectURL(blob3)
+          setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return url3 })
+          setUpscaleProgress(100)
+          toast.success(`8x AI upscaling complete!`)
+        } else {
+          // Use 4x result
+          setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return url })
+          toast.success("4x AI upscaling complete! (8x requires more processing)")
+        }
+      } else {
+        setEnhancedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return url })
+        setUpscaleProgress(100)
+        toast.success(`4x AI upscaling complete!`)
+      }
+    } catch (err: any) {
+      toast.error(err.message || "AI upscaling failed. Try canvas upscaling instead.")
+      // Fallback to canvas
+      applyAndPreview(settings, Math.min(scale, 4))
+    } finally {
+      setProcessing(false)
+      setUpscaleProgress(0)
+    }
   }
 
   const handleReset = () => {
@@ -282,29 +407,40 @@ export default function ImageEnhancer() {
             <Label className="font-bold text-sm flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
               Upscale Resolution
+              <span className="text-xs font-normal text-muted-foreground">(4x & 8x use Real-ESRGAN AI)</span>
             </Label>
             <div className="grid grid-cols-4 gap-2">
-              {[
-                { scale: 1, label: "Original", desc: `${originalSize.w}×${originalSize.h}` },
-                { scale: 2, label: "2x HD", desc: `${originalSize.w * 2}×${originalSize.h * 2}` },
-                { scale: 3, label: "3x FHD", desc: `${originalSize.w * 3}×${originalSize.h * 3}` },
-                { scale: 4, label: "4x 4K", desc: `${originalSize.w * 4}×${originalSize.h * 4}` },
-              ].map(u => (
+              {UPSCALE_OPTIONS.map(u => (
                 <button
                   key={u.scale}
-                  onClick={() => handleUpscale(u.scale)}
+                  onClick={() => handleUpscale(u.scale, u.ai)}
+                  disabled={processing}
                   className={cn(
-                    "p-3 rounded-xl border-2 text-center transition-all",
+                    "p-3 rounded-xl border-2 text-center transition-all disabled:opacity-50",
                     upscaleLevel === u.scale
                       ? "border-primary bg-primary/10"
                       : "border-border hover:border-primary/40"
                   )}
                 >
-                  <p className={cn("font-black text-sm", upscaleLevel === u.scale ? "text-primary" : "")}>{u.label}</p>
+                  <p className={cn("font-black text-sm", upscaleLevel === u.scale ? "text-primary" : "")}>
+                    {u.label}
+                    {u.ai && <span className="ml-1 text-[9px] bg-violet-500/20 text-violet-600 px-1 rounded">AI</span>}
+                  </p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">{u.desc}px</p>
                 </button>
               ))}
             </div>
+            {processing && upscaleProgress > 0 && (
+              <div className="space-y-1">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-violet-500 rounded-full transition-all duration-500" style={{ width: `${upscaleProgress}%` }} />
+                </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  {upscaleProgress < 30 ? "Sending to AI..." : upscaleProgress < 80 ? "Real-ESRGAN processing..." : "Finalizing..."}
+                  {" "}{upscaleProgress}%
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Presets */}
