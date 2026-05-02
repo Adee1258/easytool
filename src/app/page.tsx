@@ -136,6 +136,37 @@ export default function Home() {
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Typing animation state
+  const typingWords = ["100% Free.", "No Signup.", "Instant Results.", "Privacy First.", "Free Forever."]
+  const [typingIndex, setTypingIndex] = useState(0)
+  const [displayText, setDisplayText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [typingPause, setTypingPause] = useState(false)
+
+  useEffect(() => {
+    if (typingPause) return
+    const currentWord = typingWords[typingIndex]
+    const speed = isDeleting ? 40 : 80
+
+    const timer = setTimeout(() => {
+      if (!isDeleting) {
+        setDisplayText(currentWord.slice(0, displayText.length + 1))
+        if (displayText.length + 1 === currentWord.length) {
+          setTypingPause(true)
+          setTimeout(() => { setIsDeleting(true); setTypingPause(false) }, 1800)
+        }
+      } else {
+        setDisplayText(currentWord.slice(0, displayText.length - 1))
+        if (displayText.length - 1 === 0) {
+          setIsDeleting(false)
+          setTypingIndex((prev) => (prev + 1) % typingWords.length)
+        }
+      }
+    }, speed)
+
+    return () => clearTimeout(timer)
+  }, [displayText, isDeleting, typingIndex, typingPause])
+
   const filteredBySearch = searchQuery.trim().length > 1
     ? tools.filter(t =>
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -206,13 +237,24 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <div className="space-y-3 fade-up reveal reveal-1">
-            <h1 className="display-text max-w-4xl">
-              All Your Tools,{" "}
-              <span className="animated-gradient">One Place</span>
+          <div className="space-y-4 fade-up reveal reveal-1">
+            <h1 className="display-text max-w-5xl">
+              AI-Powered Tools for Everyone
+              <br />
+              <span className="animated-gradient">— Free Forever</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              PDF, Image, Text, Finance & more — 100% free, no signup, works in your browser.
+
+            {/* Typing Animation */}
+            <div className="flex items-center justify-center gap-3 text-xl md:text-2xl font-bold text-muted-foreground">
+              <span>Your work is</span>
+              <span className="inline-flex items-center min-w-[180px] text-primary">
+                {displayText}
+                <span className="ml-0.5 w-0.5 h-6 bg-primary inline-block animate-pulse" />
+              </span>
+            </div>
+
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              50+ professional tools for PDF, Image, Text, Finance & AI — all free, no signup, works in your browser.
             </p>
           </div>
 
