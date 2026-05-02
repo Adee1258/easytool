@@ -41,6 +41,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
   const [showResults, setShowResults] = React.useState(false)
+  const [showSearch, setShowSearch] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
   const pathname = usePathname()
   const router = useRouter()
