@@ -18,8 +18,12 @@ const MSG_PATTERNS = [
   /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\s+-\s+([^:]+):\s+(.+)$/,
   // Android 12hr: 12/03/2024, 2:30 PM - Name: msg
   /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M)\s+-\s+([^:]+):\s+(.+)$/i,
-  // iOS: [12/03/2024, 14:30:00] Name: msg
+  // iOS brackets: [12/03/2024, 14:30:00] Name: msg
   /^\[(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)\]\s+([^:]+):\s+(.+)$/i,
+  // New Android format: 12/3/24, 2:30 am - Name: msg (lowercase am/pm)
+  /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s*[ap]m)\s+-\s+([^:]+):\s+(.+)$/,
+  // Format with en-dash: 12/03/2024, 14:30 – Name: msg
+  /^(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)\s+[–\-]\s+([^:]+):\s+(.+)$/i,
 ]
 
 interface Message {
@@ -248,9 +252,17 @@ export default function WhatsAppChatAnalyzer() {
       "text/plain": [".txt"],
       "application/zip": [".zip"],
       "application/x-zip-compressed": [".zip"],
+      "application/x-zip": [".zip"],
+      "application/octet-stream": [".zip"],
     },
     multiple: false,
     maxSize: 100 * 1024 * 1024,
+    // Accept any file - let onDrop handle validation
+    validator: (file) => {
+      const name = file.name.toLowerCase()
+      if (name.endsWith(".zip") || name.endsWith(".txt")) return null
+      return { code: "wrong-type", message: "Only .zip or .txt files allowed" }
+    }
   })
 
   const topParticipants = stats
