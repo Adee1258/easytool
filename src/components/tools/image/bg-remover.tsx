@@ -4,7 +4,7 @@ import { useState, useCallback, useRef } from "react"
 import { useDropzone } from "react-dropzone"
 import {
   Upload, Download, Eraser, Loader2, CheckCircle2,
-  RefreshCw, Palette, X, Sparkles, ExternalLink
+  RefreshCw, Palette, X, Sparkles, ZoomIn, AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -25,121 +25,49 @@ const BG_COLORS = [
   { id: "pink", label: "Pink", value: "#EC4899" },
 ]
 
-// ── Canvas-based background removal (flood fill from corners) ──────────────
-function removeBackgroundCanvas(
-  img: HTMLImageElement,
-  tolerance: number
-): HTMLCanvasElement {
+// Apply background color to a transparent PNG blob
+async function applyBackground(
+  pngBlob: Blob,
+  color: string | null,
+  bgImageUrl?: string | null
+): Promise<string> {
+  const url = URL.createObjectURL(pngBlob)
+  const img = new Image()
+  img.src = url
+  await new Promise(r => { img.onload = r })
+
   const canvas = document.createElement("canvas")
   canvas.width = img.width
   canvas.height = img.height
   const ctx = canvas.getContext("2d")!
+
+  if (bgImageUrl) {
+    const bgImg = new Image()
+    bgImg.src = bgImageUrl
+    await new Promise(r => { bgImg.onload = r })
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height)
+  } else if (color) {
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  }
+
   ctx.drawImage(img, 0, 0)
-
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  const data = imageData.data
-  const w = canvas.width
-  const h = canvas.height
-
-  // Get background color from corners (average of 4 corners)
-  const corners = [
-    [0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]
-  ]
-  let bgR = 0, bgG = 0, bgB = 0
-  corners.forEach(([x, y]) => {
-    const idx = (y * w + x) * 4
-    bgR += data[idx]; bgG += data[idx + 1]; bgB += data[idx + 2]
-  })
-  bgR = Math.round(bgR / 4)
-  bgG = Math.round(bgG / 4)
-  bgB = Math.round(bgB / 4)
-
-  // BFS flood fill from all 4 corners
-  const visited = new Uint8Array(w * h)
-  const queue: number[] = []
-
-  const colorDiff = (idx: number) => {
-    const r = data[idx] - bgR
-    const g = data[idx + 1] - bgG
-    const b = data[idx + 2] - bgB
-    return Math.sqrt(r * r + g * g + b * b)
-  }
-
-  // Seed from edges
-  for (let x = 0; x < w; x++) {
-    for (const y of [0, h - 1]) {
-      const pos = y * w + x
-      if (!visited[pos] && colorDiff(pos * 4) < tolerance) {
-        queue.push(pos)
-        visited[pos] = 1
-      }
-    }
-  }
-  for (let y = 0; y < h; y++) {
-    for (const x of [0, w - 1]) {
-      const pos = y * w + x
-      if (!visited[pos] && colorDiff(pos * 4) < tolerance) {
-        queue.push(pos)
-        visited[pos] = 1
-      }
-    }
-  }
-
-  // BFS
-  let qi = 0
-  while (qi < queue.length) {
-    const pos = queue[qi++]
-    const x = pos % w
-    const y = Math.floor(pos / w)
-
-    // Make transparent
-    data[pos * 4 + 3] = 0
-
-    const neighbors = [
-      pos - 1, pos + 1, pos - w, pos + w
-    ]
-    for (const n of neighbors) {
-      const nx = n % w
-      const ny = Math.floor(n / w)
-      if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue
-      if (visited[n]) continue
-      if (colorDiff(n * 4) < tolerance) {
-        visited[n] = 1
-        queue.push(n)
-      }
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0)
-  return canvas
-}
-
-function applyBgColor(
-  sourceCanvas: HTMLCanvasElement,
-  color: string | null
-): string {
-  if (!color) return sourceCanvas.toDataURL("image/png")
-
-  const out = document.createElement("canvas")
-  out.width = sourceCanvas.width
-  out.height = sourceCanvas.height
-  const ctx = out.getContext("2d")!
-  ctx.fillStyle = color
-  ctx.fillRect(0, 0, out.width, out.height)
-  ctx.drawImage(sourceCanvas, 0, 0)
-  return out.toDataURL("image/png")
+  URL.revokeObjectURL(url)
+  return canvas.toDataURL("image/png")
 }
 
 export default function BgRemover() {
   const [originalFile, setOriginalFile] = useState<File | null>(null)
   const [originalUrl, setOriginalUrl] = useState<string | null>(null)
-  const [removedCanvas, setRemovedCanvas] = useState<HTMLCanvasElement | null>(null)
+  const [removedBlob, setRemovedBlob] = useState<Blob | null>(null)
   const [finalUrl, setFinalUrl] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [progressMsg, setProgressMsg] = useState("")
   const [selectedBg, setSelectedBg] = useState("transparent")
-  const [tolerance, setTolerance] = useState(40)
   const [customColor, setCustomColor] = useState("#FF6B6B")
   const [bgImageUrl, setBgImageUrl] = useState<string | null>(null)
+  const [showCompare, setShowCompare] = useState(false)
   const bgFileRef = useRef<HTMLInputElement>(null)
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -147,71 +75,86 @@ export default function BgRemover() {
     if (!file) return
     setOriginalFile(file)
     setOriginalUrl(URL.createObjectURL(file))
-    setRemovedCanvas(null)
+    setRemovedBlob(null)
     setFinalUrl(null)
-    toast.success("Photo uploaded!")
+    setProgress(0)
+    toast.success("Photo uploaded! Click Remove Background.")
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
     multiple: false,
-    maxSize: 10 * 1024 * 1024,
+    maxSize: 12 * 1024 * 1024,
   })
 
-  const removeBackground = () => {
-    if (!originalUrl) return
+  const removeBackground = async () => {
+    if (!originalFile) return
     setProcessing(true)
+    setProgress(10)
+    setProgressMsg("Uploading to AI...")
 
-    const img = new Image()
-    img.onload = () => {
-      try {
-        const canvas = removeBackgroundCanvas(img, tolerance)
-        setRemovedCanvas(canvas)
-        const url = applyBgColor(canvas, null)
-        setFinalUrl(url)
-        setProcessing(false)
-        toast.success("Background removed!")
-      } catch {
-        setProcessing(false)
-        toast.error("Failed. Try adjusting tolerance.")
+    try {
+      // Use remove.bg API via our Next.js API route
+      const formData = new FormData()
+      formData.append("image_file", originalFile)
+      formData.append("size", "auto")
+
+      setProgress(30)
+      setProgressMsg("AI removing background...")
+
+      const response = await fetch("/api/remove-bg", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err.message || "Background removal failed")
       }
+
+      setProgress(80)
+      setProgressMsg("Finalizing...")
+
+      const blob = await response.blob()
+      setRemovedBlob(blob)
+
+      const url = await applyBackground(blob, null)
+      setFinalUrl(url)
+      setProgress(100)
+      setProcessing(false)
+      toast.success("Background removed! ✨")
+    } catch (err: any) {
+      setProcessing(false)
+      setProgress(0)
+      toast.error(err.message || "Failed. Please try again.")
     }
-    img.src = originalUrl
   }
 
-  const handleBgChange = (bgId: string) => {
+  const handleBgChange = async (bgId: string) => {
     setSelectedBg(bgId)
-    if (!removedCanvas) return
+    if (!removedBlob) return
     const preset = BG_COLORS.find(b => b.id === bgId)
     const color = bgId === "custom" ? customColor : (preset?.value ?? null)
-    setFinalUrl(applyBgColor(removedCanvas, color))
+    const url = await applyBackground(removedBlob, color, bgId === "image" ? bgImageUrl : null)
+    setFinalUrl(url)
   }
 
-  const handleColorChange = (color: string) => {
+  const handleColorChange = async (color: string) => {
     setCustomColor(color)
-    if (!removedCanvas) return
-    setFinalUrl(applyBgColor(removedCanvas, color))
+    if (!removedBlob) return
+    const url = await applyBackground(removedBlob, color)
+    setFinalUrl(url)
   }
 
   const handleBgImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !removedCanvas) return
+    if (!file || !removedBlob) return
     const url = URL.createObjectURL(file)
     setBgImageUrl(url)
     setSelectedBg("image")
-
-    const bgImg = new Image()
-    bgImg.onload = () => {
-      const out = document.createElement("canvas")
-      out.width = removedCanvas.width
-      out.height = removedCanvas.height
-      const ctx = out.getContext("2d")!
-      ctx.drawImage(bgImg, 0, 0, out.width, out.height)
-      ctx.drawImage(removedCanvas, 0, 0)
-      setFinalUrl(out.toDataURL("image/png"))
-    }
-    bgImg.src = url
+    const result = await applyBackground(removedBlob, null, url)
+    setFinalUrl(result)
   }
 
   const download = () => {
@@ -233,7 +176,7 @@ export default function BgRemover() {
             {...getRootProps()}
             className={cn(
               "border-2 border-dashed rounded-2xl p-14 text-center cursor-pointer transition-all",
-              isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"
+              isDragActive ? "border-primary bg-primary/5 scale-[0.99]" : "border-border hover:border-primary/50 hover:bg-muted/30"
             )}
           >
             <input {...getInputProps()} />
@@ -242,68 +185,69 @@ export default function BgRemover() {
                 <Eraser className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-1">Upload Image to Remove Background</h3>
-                <p className="text-muted-foreground text-sm">JPG, PNG, WebP — Max 10MB</p>
+                <h3 className="text-xl font-bold mb-1">Remove Background with AI</h3>
+                <p className="text-muted-foreground text-sm">JPG, PNG, WebP — Max 12MB</p>
               </div>
-              <Button size="lg" className="px-8 h-12 font-bold" type="button">
+              <Button size="lg" className="px-8 h-12 font-bold btn-glow" type="button">
                 <Upload className="mr-2 h-5 w-5" /> Choose Image
               </Button>
-              <p className="text-xs text-muted-foreground">
-                💡 Works best on images with solid/uniform backgrounds
-              </p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span>Powered by AI — Professional quality, instant results</span>
+              </div>
             </div>
           </div>
-
-          {/* Pro tip card */}
-          <Card className="bg-violet-500/5 border-violet-500/20">
-            <CardContent className="p-5">
-              <p className="font-bold text-sm mb-2 flex items-center gap-2 text-violet-700 dark:text-violet-400">
-                <Sparkles className="h-4 w-4" /> Pro Tip — For Best AI Results
-              </p>
-              <p className="text-xs text-muted-foreground mb-3">
-                Our tool uses smart edge detection. For professional AI-grade removal (like remove.bg), try these free tools:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { name: "remove.bg", url: "https://remove.bg" },
-                  { name: "Canva BG Remover", url: "https://canva.com" },
-                  { name: "Adobe Express", url: "https://adobe.com/express" },
-                ].map(t => (
-                  <a key={t.name} href={t.url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-violet-500/10 text-violet-700 dark:text-violet-400 hover:bg-violet-500/20 transition-all">
-                    {t.name} <ExternalLink className="h-3 w-3" />
-                  </a>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       ) : (
         <div className="space-y-5">
-          {/* Preview */}
+          {/* Before/After Preview */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs font-bold text-muted-foreground uppercase">Original</Label>
-              <div className="aspect-square rounded-2xl overflow-hidden border-2 border-border bg-muted">
-                <img src={originalUrl!} alt="Original" className="w-full h-full object-contain" />
+              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Original</Label>
+              <div className="relative aspect-square rounded-2xl overflow-hidden border-2 border-border bg-muted">
+                {originalUrl && <img src={originalUrl} alt="Original" className="w-full h-full object-contain" />}
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-bold text-muted-foreground uppercase">Result</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Result</Label>
+                {finalUrl && (
+                  <button
+                    onMouseEnter={() => setShowCompare(true)}
+                    onMouseLeave={() => setShowCompare(false)}
+                    className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+                  >
+                    <ZoomIn className="h-3 w-3" /> Compare
+                  </button>
+                )}
+              </div>
               <div className={cn(
-                "aspect-square rounded-2xl overflow-hidden border-2 border-primary/20",
+                "relative aspect-square rounded-2xl overflow-hidden border-2",
+                finalUrl ? "border-primary/30" : "border-border",
                 selectedBg === "transparent"
                   ? "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZTVlN2ViIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNlNWU3ZWIiLz48cmVjdCB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjlmYWZiIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2Y5ZmFmYiIvPjwvc3ZnPg==')] bg-repeat"
                   : "bg-muted"
               )}>
-                {processing ? (
-                  <div className="w-full h-full flex items-center justify-center">
+                {processing && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm z-10">
                     <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                    <div className="w-48 space-y-1.5">
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+                      </div>
+                      <p className="text-xs text-center text-muted-foreground">{progressMsg}</p>
+                    </div>
                   </div>
-                ) : finalUrl ? (
-                  <img src={finalUrl} alt="Result" className="w-full h-full object-contain" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
+                )}
+                {finalUrl && (
+                  <img
+                    src={showCompare ? originalUrl! : finalUrl}
+                    alt="Result"
+                    className="w-full h-full object-contain transition-all duration-200"
+                  />
+                )}
+                {!finalUrl && !processing && (
+                  <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-xs text-muted-foreground">Click Remove Background</p>
                   </div>
                 )}
@@ -311,61 +255,63 @@ export default function BgRemover() {
             </div>
           </div>
 
-          {/* Tolerance Slider */}
-          {!removedCanvas && (
-            <div className="space-y-2">
-              <Label className="text-sm font-bold flex justify-between">
-                <span>Background Tolerance</span>
-                <span className="text-primary">{tolerance}</span>
-              </Label>
-              <input
-                type="range" min={10} max={100} value={tolerance}
-                onChange={e => setTolerance(Number(e.target.value))}
-                className="w-full accent-violet-600"
-              />
-              <p className="text-xs text-muted-foreground">
-                Lower = precise (solid BG) · Higher = aggressive (complex BG)
-              </p>
-            </div>
+          {/* Remove Button */}
+          {!removedBlob && (
+            <Button
+              onClick={removeBackground}
+              disabled={processing}
+              className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/25 btn-glow"
+            >
+              {processing ? (
+                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {progressMsg} {progress}%</>
+              ) : (
+                <><Sparkles className="mr-2 h-5 w-5" /> Remove Background with AI</>
+              )}
+            </Button>
           )}
 
-          {/* Remove Button */}
-          {!removedCanvas ? (
-            <Button onClick={removeBackground} disabled={processing} className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/25">
-              {processing ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Removing...</> : <><Eraser className="mr-2 h-5 w-5" /> Remove Background</>}
-            </Button>
-          ) : (
+          {/* Background Selector */}
+          {removedBlob && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/8 border border-green-500/20">
                 <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-                <p className="text-sm font-semibold text-green-700 dark:text-green-400">Done! Choose a background or download.</p>
+                <p className="text-sm font-semibold text-green-700 dark:text-green-400">
+                  Background removed! Choose a new background or download.
+                </p>
               </div>
 
-              {/* BG Color Picker */}
               <Card>
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-5 space-y-4">
                   <Label className="font-bold text-sm flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-primary" /> Background
+                    <Palette className="h-4 w-4 text-primary" /> Choose Background
                   </Label>
                   <div className="flex flex-wrap gap-2">
                     {BG_COLORS.map(bg => (
-                      <button key={bg.id} onClick={() => handleBgChange(bg.id)}
-                        className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all",
-                          selectedBg === bg.id ? "border-primary" : "border-border hover:border-primary/40")}>
-                        <div className={cn("w-9 h-9 rounded-lg", selectedBg === bg.id && "ring-2 ring-primary ring-offset-1")}>
+                      <button
+                        key={bg.id}
+                        onClick={() => handleBgChange(bg.id)}
+                        className={cn(
+                          "flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all",
+                          selectedBg === bg.id ? "border-primary scale-105" : "border-border hover:border-primary/40"
+                        )}
+                      >
+                        <div className={cn("w-9 h-9 rounded-lg overflow-hidden", selectedBg === bg.id && "ring-2 ring-primary ring-offset-1")}>
                           {bg.id === "transparent" ? (
-                            <div className="w-full h-full rounded-lg bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZTVlN2ViIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNlNWU3ZWIiLz48cmVjdCB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjlmYWZiIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2Y5ZmFmYiIvPjwvc3ZnPg==')] bg-repeat" />
+                            <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZTVlN2ViIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNlNWU3ZWIiLz48cmVjdCB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjlmYWZiIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2Y5ZmFmYiIvPjwvc3ZnPg==')] bg-repeat" />
                           ) : (
-                            <div className="w-full h-full rounded-lg" style={{ backgroundColor: bg.value! }} />
+                            <div className="w-full h-full" style={{ backgroundColor: bg.value! }} />
                           )}
                         </div>
                         <span className="text-[10px] font-medium">{bg.label}</span>
                       </button>
                     ))}
-                    {/* Custom color */}
-                    <button onClick={() => handleBgChange("custom")}
+
+                    {/* Custom Color */}
+                    <button
+                      onClick={() => handleBgChange("custom")}
                       className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all",
-                        selectedBg === "custom" ? "border-primary" : "border-border hover:border-primary/40")}>
+                        selectedBg === "custom" ? "border-primary scale-105" : "border-border hover:border-primary/40")}
+                    >
                       <div className="w-9 h-9 rounded-lg overflow-hidden">
                         <input type="color" value={customColor}
                           onChange={e => handleColorChange(e.target.value)}
@@ -373,10 +319,13 @@ export default function BgRemover() {
                       </div>
                       <span className="text-[10px] font-medium">Custom</span>
                     </button>
+
                     {/* BG Image */}
-                    <button onClick={() => bgFileRef.current?.click()}
+                    <button
+                      onClick={() => bgFileRef.current?.click()}
                       className={cn("flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all",
-                        selectedBg === "image" ? "border-primary" : "border-border hover:border-primary/40")}>
+                        selectedBg === "image" ? "border-primary scale-105" : "border-border hover:border-primary/40")}
+                    >
                       <div className="w-9 h-9 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
                         {bgImageUrl ? <img src={bgImageUrl} className="w-full h-full object-cover" alt="" /> : <Palette className="h-4 w-4 text-muted-foreground" />}
                       </div>
@@ -390,14 +339,14 @@ export default function BgRemover() {
                 <Button onClick={download} className="flex-1 h-12 font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/25">
                   <Download className="mr-2 h-5 w-5" /> Download PNG
                 </Button>
-                <Button variant="outline" onClick={() => { setOriginalFile(null); setOriginalUrl(null); setRemovedCanvas(null); setFinalUrl(null) }} className="h-12 px-5">
+                <Button variant="outline" onClick={() => { setOriginalFile(null); setOriginalUrl(null); setRemovedBlob(null); setFinalUrl(null) }} className="h-12 px-5">
                   <RefreshCw className="mr-2 h-4 w-4" /> New
                 </Button>
               </div>
             </div>
           )}
 
-          {!removedCanvas && (
+          {!removedBlob && !processing && (
             <Button variant="ghost" size="sm" onClick={() => { setOriginalFile(null); setOriginalUrl(null) }} className="w-full text-muted-foreground">
               <X className="mr-2 h-4 w-4" /> Change Image
             </Button>
