@@ -1,5 +1,6 @@
 declare module "@imgly/background-removal" {
   interface RemoveBackgroundConfig {
+    publicPath?: string
     progress?: (key: string, current: number, total: number) => void
     output?: {
       format?: "image/png" | "image/jpeg" | "image/webp"
