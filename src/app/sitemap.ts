@@ -67,6 +67,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.80,
     },
     {
+      url: `${baseUrl}/whatsapp-word-cloud-generator`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.80,
+    },
+    {
+      url: `${baseUrl}/whatsapp-sentiment-analysis`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.82,
+    },
+    {
+      url: `${baseUrl}/whatsapp-vs-telegram-chat-analyzer`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.78,
+    },
+    {
+      url: `${baseUrl}/whatsapp-who-texts-you-most`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/blog/whatsapp-chat-analyzer-kaise-use-karein`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.75,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
