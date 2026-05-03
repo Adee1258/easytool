@@ -1,4 +1,4 @@
-﻿import { Metadata } from "next"
+import { Metadata } from "next"
 import Link from "next/link"
 import { MessageSquare, ChevronRight, CheckCircle2, AlertCircle, ArrowRight, Shield, Zap, Info, FileText, MoreVertical, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -39,7 +39,6 @@ const faqJsonLd = {
   ],
 }
 
-// ── Phone Mockup Shell ────────────────────────────────────────────────────
 function PhoneFrame({ children, stepNum, highlight }: { children: React.ReactNode; stepNum: string; highlight?: string }) {
   return (
     <div className="flex flex-col items-center gap-3 w-full">
@@ -68,7 +67,6 @@ function PhoneFrame({ children, stepNum, highlight }: { children: React.ReactNod
   )
 }
 
-// Status bar
 function StatusBar() {
   return (
     <div className="bg-[#075E54] px-3 pt-1.5 pb-0.5 flex items-center justify-between">
@@ -87,7 +85,6 @@ function StatusBar() {
   )
 }
 
-// WhatsApp top bar
 function WABar({ name, back }: { name: string; back?: boolean }) {
   return (
     <div className="bg-[#075E54] px-2.5 py-2 flex items-center gap-2">
@@ -107,7 +104,6 @@ function WABar({ name, back }: { name: string; back?: boolean }) {
   )
 }
 
-// Chat bubble
 function Bubble({ text, mine, time }: { text: string; mine?: boolean; time: string }) {
   return (
     <div className={cn("flex mb-1", mine ? "justify-end" : "justify-start")}>
@@ -119,12 +115,10 @@ function Bubble({ text, mine, time }: { text: string; mine?: boolean; time: stri
   )
 }
 
-// Chat background
 function ChatBG({ children }: { children: React.ReactNode }) {
   return <div className="bg-[#ECE5DD] px-2 py-2 min-h-[200px]">{children}</div>
 }
 
-// Input bar
 function InputBar() {
   return (
     <div className="bg-[#F0F0F0] px-2 py-1.5 flex items-center gap-1.5">
@@ -138,7 +132,259 @@ function InputBar() {
   )
 }
 
-// ── Upload to EasyTool mockup ─────────────────────────────────────────────
+function AndroidStep1() {
+  return (
+    <PhoneFrame stepNum="1" highlight="Open any chat in WhatsApp">
+      <StatusBar />
+      <WABar name="Ali" back={false} />
+      <ChatBG>
+        <Bubble text="Hey! How are you?" time="14:30" />
+        <Bubble text="I'm good! What about you?" mine time="14:32" />
+        <Bubble text="Same here! Let's meet tomorrow" time="14:33" />
+      </ChatBG>
+      <InputBar />
+    </PhoneFrame>
+  )
+}
+
+function AndroidStep2() {
+  return (
+    <PhoneFrame stepNum="2" highlight="Tap ⋮ then tap More">
+      <StatusBar />
+      <WABar name="Ali" back={false} />
+      <ChatBG>
+        <Bubble text="Hey! How are you?" time="14:30" />
+      </ChatBG>
+      <div className="absolute right-2 top-16 w-32 bg-gray-900 rounded-lg shadow-xl border border-gray-700 overflow-hidden z-10">
+        <div className="px-3 py-2 border-b border-gray-700">
+          <p className="text-white text-[8px]">New group</p>
+        </div>
+        <div className="px-3 py-2 border-b border-gray-700">
+          <p className="text-white text-[8px]">New broadcast</p>
+        </div>
+        <div className="px-3 py-2 border-b border-gray-700 bg-emerald-600">
+          <p className="text-white text-[8px] font-bold">More</p>
+        </div>
+        <div className="px-3 py-2">
+          <p className="text-white text-[8px]">Settings</p>
+        </div>
+      </div>
+    </PhoneFrame>
+  )
+}
+
+function AndroidStep3() {
+  return (
+    <PhoneFrame stepNum="3" highlight="Tap Export chat">
+      <StatusBar />
+      <div className="bg-[#ECE5DD] px-3 py-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-white">
+            <p className="text-[8px] font-bold">View contact</p>
+          </div>
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-white">
+            <p className="text-[8px] font-bold">Media, links, and docs</p>
+          </div>
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-white">
+            <p className="text-[8px] font-bold">Search</p>
+          </div>
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-white">
+            <p className="text-[8px] font-bold">Mute notifications</p>
+          </div>
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-white">
+            <p className="text-[8px] font-bold">Wallpaper</p>
+          </div>
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-emerald-500">
+            <p className="text-white text-[8px] font-bold">Export chat</p>
+          </div>
+        </div>
+      </div>
+    </PhoneFrame>
+  )
+}
+
+function AndroidStep4() {
+  return (
+    <PhoneFrame stepNum="4" highlight="Choose Without Media">
+      <StatusBar />
+      <div className="bg-white/80 absolute inset-0 flex items-center justify-center z-20">
+        <div className="bg-white rounded-xl shadow-xl w-[150px] p-3">
+          <p className="text-[9px] font-bold text-center mb-2">Export chat</p>
+          <p className="text-[7px] text-gray-500 text-center mb-3">Include media?</p>
+          <div className="space-y-1">
+            <div className="py-2 border-b border-gray-100">
+              <p className="text-[8px] text-center">Without Media</p>
+            </div>
+            <div className="py-2">
+              <p className="text-[8px] text-center text-emerald-600 font-bold">Include Media</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="opacity-30">
+        <WABar name="Ali" back={false} />
+        <ChatBG>
+          <Bubble text="Hey!" time="14:30" />
+        </ChatBG>
+      </div>
+    </PhoneFrame>
+  )
+}
+
+function AndroidStep5() {
+  return (
+    <PhoneFrame stepNum="5" highlight="Save the ZIP file">
+      <StatusBar />
+      <div className="bg-white p-3 min-h-[260px]">
+        <p className="text-[9px] font-bold mb-2">Share</p>
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {["Gmail", "Drive", "Files", "Bluetooth"].map((app, i) => (
+            <div key={app} className="flex flex-col items-center gap-1">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <span className="text-[10px]">{app[0]}</span>
+              </div>
+              <p className="text-[6px] text-gray-600">{app}</p>
+            </div>
+          ))}
+        </div>
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+          <p className="text-[7px] font-bold text-emerald-700 text-center">Save to Device ✓</p>
+        </div>
+      </div>
+    </PhoneFrame>
+  )
+}
+
+function IPhoneStep1() {
+  return (
+    <PhoneFrame stepNum="1" highlight="Open any chat in WhatsApp">
+      <StatusBar />
+      <WABar name="Sara" back={false} />
+      <ChatBG>
+        <Bubble text="Hi! What's up?" time="10:15" />
+        <Bubble text="Not much, you?" mine time="10:16" />
+      </ChatBG>
+      <InputBar />
+    </PhoneFrame>
+  )
+}
+
+function IPhoneStep2() {
+  return (
+    <PhoneFrame stepNum="2" highlight="Tap contact name at top">
+      <StatusBar />
+      <div className="bg-[#075E54] px-2.5 py-2 flex items-center gap-2">
+        <ChevronRight className="w-3 h-3 text-white rotate-180 flex-shrink-0" />
+        <div className="w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center flex-shrink-0">
+          <span className="text-[9px] font-black text-emerald-800">S</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white text-[9px] font-bold leading-none truncate">Sara</p>
+          <p className="text-white/60 text-[7px] mt-0.5">online</p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <svg className="w-3 h-3 text-white/70" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          <MoreVertical className="w-3 h-3 text-white/70" />
+        </div>
+      </div>
+      <ChatBG>
+        <Bubble text="Hi!" time="10:15" />
+      </ChatBG>
+    </PhoneFrame>
+  )
+}
+
+function IPhoneStep3() {
+  return (
+    <PhoneFrame stepNum="3" highlight="Scroll down, tap Export Chat">
+      <StatusBar />
+      <div className="bg-gray-100 px-2 py-2 min-h-[260px] overflow-y-auto">
+        <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-2">
+          <div className="flex items-center gap-2 px-3 py-3 border-b border-gray-100">
+            <div className="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center">
+              <span className="text-[12px] font-black text-emerald-800">S</span>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold">Sara</p>
+              <p className="text-[7px] text-gray-500">+1 234 567 8900</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl overflow-hidden shadow-sm">
+          {["Media, Links, and Docs", "Starred Messages", "Search", "Mute", "Disappearing Messages", "Wallpaper"].map((item, i) => (
+            <div key={item} className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+              <p className="text-[8px]">{item}</p>
+              <ChevronRight className="w-3 h-3 text-gray-400" />
+            </div>
+          ))}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-emerald-50">
+            <p className="text-[8px] font-bold text-emerald-700">Export Chat</p>
+            <ChevronRight className="w-3 h-3 text-emerald-500" />
+          </div>
+          {["Lock Chat", "Clear Chat", "Delete Chat"].map((item, i) => (
+            <div key={item} className="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0">
+              <p className="text-[8px]">{item}</p>
+              <ChevronRight className="w-3 h-3 text-gray-400" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </PhoneFrame>
+  )
+}
+
+function IPhoneStep4() {
+  return (
+    <PhoneFrame stepNum="4" highlight="Choose Without Media">
+      <StatusBar />
+      <div className="bg-black/50 absolute inset-0 flex items-end justify-center z-20">
+        <div className="bg-white rounded-t-2xl w-full p-4">
+          <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+          <p className="text-[9px] font-bold text-center mb-4">Export Chat</p>
+          <div className="space-y-2">
+            <div className="py-3 rounded-xl bg-gray-100 flex items-center justify-center">
+              <p className="text-[8px] font-bold">Attach Media</p>
+            </div>
+            <div className="py-3 rounded-xl bg-emerald-600 flex items-center justify-center">
+              <p className="text-white text-[8px] font-bold">Without Media</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="opacity-30">
+        <WABar name="Sara" back={false} />
+        <ChatBG>
+          <Bubble text="Hi!" time="10:15" />
+        </ChatBG>
+      </div>
+    </PhoneFrame>
+  )
+}
+
+function IPhoneStep5() {
+  return (
+    <PhoneFrame stepNum="5" highlight="Save to Files or email">
+      <StatusBar />
+      <div className="bg-gray-100 px-3 py-2 min-h-[260px]">
+        <p className="text-[8px] font-bold mb-2 text-center">WhatsApp Chat - Sara.zip</p>
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {["Messages", "Mail", "Save to Files", "WhatsApp"].map((app, i) => (
+            <div key={app} className="flex flex-col items-center gap-1">
+              <div className="w-9 h-9 rounded-xl bg-gray-200 flex items-center justify-center">
+                <span className="text-[10px]">{app[0]}</span>
+              </div>
+              <p className="text-[6px] text-gray-600 text-center">{app}</p>
+            </div>
+          ))}
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
+          <p className="text-[7px] font-bold text-blue-700 text-center">Save to Files recommended ✓</p>
+        </div>
+      </div>
+    </PhoneFrame>
+  )
+}
+
 function UploadStep() {
   return (
     <PhoneFrame stepNum="6" highlight="Upload to EasyTool — get instant stats!">
@@ -148,7 +394,6 @@ function UploadStep() {
         <p className="text-white text-[9px] font-bold">EasyTool — WhatsApp Analyzer</p>
       </div>
       <div className="bg-white p-2.5 space-y-2 min-h-[260px]">
-        {/* Upload zone */}
         <div className="border-2 border-dashed border-green-400 rounded-xl p-3 flex flex-col items-center gap-1.5 bg-green-50/50">
           <div className="w-8 h-8 rounded-xl bg-green-500/15 flex items-center justify-center">
             <MessageSquare className="w-4 h-4 text-green-600" />
@@ -158,7 +403,6 @@ function UploadStep() {
             Choose File
           </div>
         </div>
-        {/* File loaded */}
         <div className="bg-green-50 border border-green-200 rounded-xl px-2.5 py-2 flex items-center gap-2">
           <FileText className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
           <div className="flex-1 min-w-0">
@@ -167,7 +411,6 @@ function UploadStep() {
           </div>
           <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
         </div>
-        {/* Stats grid */}
         <div className="grid grid-cols-2 gap-1.5">
           {[
             { label: "Messages", value: "4,821", color: "text-blue-600" },
@@ -181,7 +424,6 @@ function UploadStep() {
             </div>
           ))}
         </div>
-        {/* Top sender */}
         <div className="bg-violet-50 border border-violet-200 rounded-xl px-2.5 py-2">
           <p className="text-[7px] font-bold text-violet-700 mb-1">Top Sender</p>
           <div className="flex items-center gap-2">
@@ -199,14 +441,12 @@ function UploadStep() {
   )
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────
 export default function HowToExportWhatsAppChat() {
   return (
     <div className="min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
-      {/* Hero */}
       <div className="bg-gradient-to-b from-green-500/10 to-transparent border-b border-green-500/15">
         <div className="container py-10 md:py-14">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6" aria-label="Breadcrumb">
@@ -239,7 +479,6 @@ export default function HowToExportWhatsAppChat() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 xl:gap-14">
           <div className="lg:col-span-2 space-y-16">
 
-            {/* Quick Answer */}
             <div className="p-5 rounded-2xl bg-green-500/8 border border-green-500/20 flex gap-4">
               <Info className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm space-y-1">
@@ -251,7 +490,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </div>
 
-            {/* Android Section */}
             <section>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-green-500/30">
@@ -264,7 +502,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
 
               <div className="space-y-12">
-                {/* Steps 1-2 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl border border-border bg-card">
@@ -282,7 +519,6 @@ export default function HowToExportWhatsAppChat() {
                   </div>
                 </div>
 
-                {/* Steps 3-4 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl border border-border bg-card">
@@ -300,7 +536,6 @@ export default function HowToExportWhatsAppChat() {
                   </div>
                 </div>
 
-                {/* Step 5 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start">
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl border border-border bg-card">
@@ -323,14 +558,12 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </section>
 
-            {/* Divider */}
             <div className="flex items-center gap-4">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs text-muted-foreground font-semibold px-2">iPhone Guide Below</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            {/* iPhone Section */}
             <section>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-xl bg-gray-800 dark:bg-gray-600 flex items-center justify-center flex-shrink-0 shadow-md">
@@ -343,7 +576,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
 
               <div className="space-y-12">
-                {/* Steps 1-2 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl border border-border bg-card">
@@ -361,7 +593,6 @@ export default function HowToExportWhatsAppChat() {
                   </div>
                 </div>
 
-                {/* Steps 3-4 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl border border-border bg-card">
@@ -379,7 +610,6 @@ export default function HowToExportWhatsAppChat() {
                   </div>
                 </div>
 
-                {/* Step 5 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start">
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl border border-border bg-card">
@@ -402,7 +632,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </section>
 
-            {/* Upload Step */}
             <section>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-violet-500/30">
@@ -426,7 +655,7 @@ export default function HowToExportWhatsAppChat() {
                   {[
                     { icon: "💬", text: "Total messages, words, media & links" },
                     { icon: "🏆", text: "Top senders ranked by message count" },
-                    { icon: "��", text: "Hourly activity chart — peak chat hours" },
+                    { icon: "📊", text: "Hourly activity chart — peak chat hours" },
                     { icon: "😂", text: "Top 10 emojis with exact counts" },
                     { icon: "📅", text: "Most active day of the week" },
                     { icon: "🔤", text: "Most used words (Urdu + English)" },
@@ -447,7 +676,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </section>
 
-            {/* With vs Without Media */}
             <section>
               <h2 className="text-xl md:text-2xl font-black mb-6">With Media vs Without Media — Which to Choose?</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -480,7 +708,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </section>
 
-            {/* Troubleshooting */}
             <section>
               <h2 className="text-xl md:text-2xl font-black mb-6">Common Problems & Fixes</h2>
               <div className="space-y-3">
@@ -502,7 +729,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </section>
 
-            {/* FAQ */}
             <section>
               <h2 className="text-xl md:text-2xl font-black mb-6">Frequently Asked Questions</h2>
               <div className="space-y-4">
@@ -523,9 +749,7 @@ export default function HowToExportWhatsAppChat() {
 
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-5 lg:sticky lg:top-6 self-start">
-            {/* CTA */}
             <div className="rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 text-white space-y-4">
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                 <MessageSquare className="h-5 w-5 text-white" />
@@ -541,7 +765,6 @@ export default function HowToExportWhatsAppChat() {
               </Link>
             </div>
 
-            {/* Privacy */}
             <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-green-600" />
@@ -550,7 +773,6 @@ export default function HowToExportWhatsAppChat() {
               <p className="text-xs text-muted-foreground leading-relaxed">EasyTool runs entirely in your browser. Your chat file is never uploaded to any server. Your messages stay on your device.</p>
             </div>
 
-            {/* Quick summary */}
             <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
               <p className="font-bold text-sm">Quick Steps</p>
               <div className="space-y-3">
@@ -584,7 +806,6 @@ export default function HowToExportWhatsAppChat() {
               </div>
             </div>
 
-            {/* What you get */}
             <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
               <p className="font-bold text-sm flex items-center gap-2">
                 <Zap className="h-4 w-4 text-green-500" />
