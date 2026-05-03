@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import packageJson from "../../../../package.json"
 
 type Stage = "idle" | "uploading" | "scanning" | "processing" | "done" | "error"
 
@@ -43,19 +44,57 @@ export default function BackgroundRemover() {
   const originalFileRef = useRef<File | null>(null)
   const isDragging = useRef(false)
   const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  // FIX 8: track all object URLs — revoke only on unmount
-  const createdUrls = useRef<string[]>([])
+  const sliderContainerRef = useRef<HTMLDivElement>(null)
 
+  // Track individual URLs so we can revoke them as soon as they're replaced
+  const originalUrlRef = useRef<string | null>(null)
+  const resultUrlRef = useRef<string | null>(null)
+
+  // ── CLEANUP on unmount ────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
-      createdUrls.current.forEach((u) => URL.revokeObjectURL(u))
+      if (originalUrlRef.current) URL.revokeObjectURL(originalUrlRef.current)
+      if (resultUrlRef.current) URL.revokeObjectURL(resultUrlRef.current)
       if (scanIntervalRef.current) clearInterval(scanIntervalRef.current)
     }
   }, [])
 
-  const createObjUrl = (blob: Blob): string => {
+  // ── FIX 2: re-apply background when downloadFormat changes ───────────────
+  useEffect(() => {
+    if (selectedBgColor !== "transparent" && resultUrl) {
+      applyBackground(selectedBgColor)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [downloadFormat])
+
+  // ── FIX 3: touch scroll conflict — passive:false via direct DOM listener ─
+  useEffect(() => {
+    const el = sliderContainerRef.current
+    if (!el) return
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      const x = Math.max(0, Math.min(e.touches[0].clientX - rect.left, rect.width))
+      setSliderPos(Math.round((x / rect.width) * 100))
+    }
+
+    el.addEventListener("touchmove", handleTouchMove, { passive: false })
+    return () => el.removeEventListener("touchmove", handleTouchMove)
+  }, [stage]) // re-attach when stage changes (slider mounts at "done")
+
+  // ── Helper: create & track object URL ────────────────────────────────────
+  const setTrackedOriginalUrl = (blob: Blob): string => {
+    if (originalUrlRef.current) URL.revokeObjectURL(originalUrlRef.current)
     const url = URL.createObjectURL(blob)
-    createdUrls.current.push(url)
+    originalUrlRef.current = url
+    return url
+  }
+
+  const setTrackedResultUrl = (blob: Blob): string => {
+    if (resultUrlRef.current) URL.revokeObjectURL(resultUrlRef.current)
+    const url = URL.createObjectURL(blob)
+    resultUrlRef.current = url
     return url
   }
 
@@ -75,14 +114,13 @@ export default function BackgroundRemover() {
       return
     }
 
-    // FIX 13: WebAssembly support check
     if (typeof WebAssembly === "undefined") {
       toast.error("Your browser doesn't support AI processing. Try Chrome or Firefox.")
       return
     }
 
     originalFileRef.current = file
-    const url = createObjUrl(file)
+    const url = setTrackedOriginalUrl(file)
     setOriginalUrl(url)
     setResultUrl(null)
     setPreviewWithBg(null)
@@ -126,10 +164,12 @@ export default function BackgroundRemover() {
 
   // ── SCAN ANIMATION ────────────────────────────────────────────────────────
   const startScan = () => {
+    // FIX: clear any existing interval before starting new one
+    if (scanIntervalRef.current) clearInterval(scanIntervalRef.current)
+
     setStage("scanning")
     setScanLine(0)
     setZoomedIn(false)
-    // FIX 11: slight delay so zoom CSS transition is visible
     setTimeout(() => setZoomedIn(true), 50)
 
     let line = 0
@@ -138,6 +178,7 @@ export default function BackgroundRemover() {
       setScanLine(Math.min(line, 100))
       if (line >= 100) {
         clearInterval(scanIntervalRef.current!)
+        scanIntervalRef.current = null
         runAIProcessing()
       }
     }, 20)
@@ -149,18 +190,20 @@ export default function BackgroundRemover() {
     setProgress(0)
 
     try {
-      // FIX 1: correct named import (not .default)
       const { removeBackground } = await import("@imgly/background-removal")
+
+      const imglyVersion = packageJson.dependencies["@imgly/background-removal"].replace("^", "")
+      const publicPath = `https://unpkg.com/@imgly/background-removal@${imglyVersion}/dist/`
 
       const blob = await removeBackground(originalFileRef.current!, {
         model: "medium",
-        publicPath: "https://unpkg.com/@imgly/background-removal@1.4.5/dist/",
+        publicPath,
         progress: (_key: string, current: number, total: number) => {
           if (total > 0) setProgress(Math.round((current / total) * 100))
         },
       } as any)
 
-      const url = createObjUrl(blob)
+      const url = setTrackedResultUrl(blob)
       setResultUrl(url)
       setStage("done")
       setSliderPos(50)
@@ -200,7 +243,6 @@ export default function BackgroundRemover() {
         ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
       ctx.drawImage(img, 0, 0)
-      // FIX 6+7: respect downloadFormat
       const mime = downloadFormat === "webp" ? "image/webp" : "image/png"
       setPreviewWithBg(canvas.toDataURL(mime))
     }
@@ -243,6 +285,10 @@ export default function BackgroundRemover() {
 
   // ── RESET / RETRY ─────────────────────────────────────────────────────────
   const reset = () => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current)
+      scanIntervalRef.current = null
+    }
     setStage("idle")
     setOriginalUrl(null)
     setResultUrl(null)
@@ -256,7 +302,6 @@ export default function BackgroundRemover() {
     originalFileRef.current = null
   }
 
-  // FIX 9: clear intermediate state before retry
   const processAgain = () => {
     setProgress(0)
     setScanLine(0)
@@ -266,18 +311,11 @@ export default function BackgroundRemover() {
     startScan()
   }
 
-  // ── SLIDER EVENTS ─────────────────────────────────────────────────────────
+  // ── SLIDER MOUSE EVENTS ───────────────────────────────────────────────────
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging.current) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width))
-    setSliderPos(Math.round((x / rect.width) * 100))
-  }
-
-  // FIX 9 (touch): no isDragging check needed — finger IS the drag
-  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = Math.max(0, Math.min(e.touches[0].clientX - rect.left, rect.width))
     setSliderPos(Math.round((x / rect.width) * 100))
   }
 
@@ -362,12 +400,10 @@ export default function BackgroundRemover() {
       <div className="max-w-5xl mx-auto space-y-5">
         <Card>
           <CardContent className="p-6">
-            {/* FIX 10: flexible height — no forced 16:9 */}
             <div
               className="relative rounded-xl overflow-hidden bg-muted"
               style={{ minHeight: 280, maxHeight: 480 }}
             >
-              {/* FIX 11: zoom via CSS transition */}
               <img
                 src={originalUrl}
                 alt="Scanning"
@@ -491,13 +527,14 @@ export default function BackgroundRemover() {
         <Card>
           <CardContent className="p-6">
             <div
+              ref={sliderContainerRef}
               className="relative rounded-xl overflow-hidden bg-muted cursor-ew-resize select-none"
               style={{ minHeight: 280, maxHeight: 500 }}
               onMouseDown={() => (isDragging.current = true)}
               onMouseUp={() => (isDragging.current = false)}
               onMouseLeave={() => (isDragging.current = false)}
               onMouseMove={onMouseMove}
-              onTouchMove={onTouchMove}
+            // FIX 3: touchmove is handled via direct DOM listener (passive:false)
             >
               {/* Checkerboard */}
               <div
@@ -510,7 +547,7 @@ export default function BackgroundRemover() {
                 }}
               />
 
-              {/* Result (right) */}
+              {/* Result (right side / full) */}
               <img
                 src={
                   selectedBgColor !== "transparent" && previewWithBg
@@ -521,7 +558,7 @@ export default function BackgroundRemover() {
                 className="absolute inset-0 w-full h-full object-contain"
               />
 
-              {/* Original clipped to left */}
+              {/* Original clipped to left of slider */}
               <div
                 className="absolute inset-0 overflow-hidden"
                 style={{ width: `${sliderPos}%` }}
@@ -531,9 +568,10 @@ export default function BackgroundRemover() {
                   alt="Original"
                   className="absolute inset-0 h-full object-contain"
                   style={{
-                    // FIX 5: guard division by zero when sliderPos approaches 0
-                    width: `${10000 / Math.max(sliderPos, 1)}%`,
+                    // FIX: use 0.1 floor to prevent NaN / Infinity
+                    width: `${10000 / Math.max(sliderPos, 0.1)}%`,
                     maxWidth: "none",
+                    minWidth: 0,
                   }}
                 />
               </div>
@@ -581,7 +619,7 @@ export default function BackgroundRemover() {
                   title={bg.label}
                 />
               ))}
-              {/* Custom color */}
+              {/* Custom color picker */}
               <div
                 className={cn(
                   "w-10 h-10 rounded-xl overflow-hidden border border-border relative hover:scale-110 transition-all",
