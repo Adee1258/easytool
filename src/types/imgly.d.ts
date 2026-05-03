@@ -6,7 +6,7 @@ declare module "@imgly/background-removal" {
       format?: "image/png" | "image/jpeg" | "image/webp"
       quality?: number
     }
-    model?: "isnet" | "isnet_fp16" | "isnet_quint8"
+    model?: "small" | "medium" | "isnet" | "isnet_fp16" | "isnet_quint8"
     debug?: boolean
   }
 
