@@ -423,6 +423,27 @@ function ToolSEOContent({ tool }: { tool: typeof tools[0] }) {
             </div>
           ))}
         </div>
+
+        {/* Related WhatsApp Tools Links */}
+        <div className="mt-8 pt-6 border-t border-border">
+          <h3 className="text-lg font-bold mb-4">More WhatsApp Tools &amp; Analysis</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[
+              { href: "/whatsapp-emoji-analyzer", label: "Emoji Analyzer", icon: "😂" },
+              { href: "/whatsapp-most-active-member", label: "Most Active Member", icon: "🏆" },
+              { href: "/whatsapp-response-time-checker", label: "Response Time Checker", icon: "⏱️" },
+              { href: "/whatsapp-sentiment-analysis", label: "Sentiment Analysis", icon: "💖" },
+              { href: "/whatsapp-word-cloud-generator", label: "Word Cloud Generator", icon: "☁️" },
+              { href: "/whatsapp-who-texts-you-most", label: "Who Texts You Most", icon: "💕" },
+              { href: "/whatsapp-vs-telegram-chat-analyzer", label: "WhatsApp vs Telegram", icon: "⚡" },
+            ].map((item) => (
+              <Link key={item.href} href={item.href} className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 border border-border/50 transition-colors">
+                <span className="text-lg">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }

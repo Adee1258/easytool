@@ -428,6 +428,10 @@ export default function WhatsAppResponseTimeChecker() {
                   { label: "WhatsApp Chat Analyzer", href: "/tools/whatsapp-chat-analyzer", icon: "💬" },
                   { label: "Most Active Member", href: "/whatsapp-most-active-member", icon: "🏆" },
                   { label: "Emoji Analyzer", href: "/whatsapp-emoji-analyzer", icon: "😂" },
+                  { label: "Sentiment Analysis", href: "/whatsapp-sentiment-analysis", icon: "💖" },
+                  { label: "WhatsApp vs Telegram", href: "/whatsapp-vs-telegram-chat-analyzer", icon: "⚡" },
+                  { label: "Who Texts You Most", href: "/whatsapp-who-texts-you-most", icon: "💕" },
+                  { label: "Urdu/Hindi Guide", href: "/blog/whatsapp-chat-analyzer-kaise-use-karein", icon: "📚" },
                   { label: "How to Export Chat", href: "/how-to-export-whatsapp-chat", icon: "📤" },
                 ].map(item => (
                   <Link key={item.href} href={item.href} className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-muted transition-colors group">
