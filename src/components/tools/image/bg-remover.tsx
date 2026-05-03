@@ -193,7 +193,7 @@ export default function BackgroundRemover() {
       const { removeBackground } = await import("@imgly/background-removal")
 
       const imglyVersion = packageJson.dependencies["@imgly/background-removal"].replace("^", "")
-      const publicPath = `https://cdn.jsdelivr.net/npm/@imgly/background-removal-data@${imglyVersion}/dist/`
+      const publicPath = `https://unpkg.com/@imgly/background-removal-data@${imglyVersion}/dist/`
 
       const blob = await removeBackground(originalFileRef.current!, {
         model: "medium",
