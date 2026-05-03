@@ -59,6 +59,16 @@ const toolFAQs: Record<string, { q: string; a: string }[]> = {
     { q: "What makes a password strong?", a: "A strong password is at least 12 characters long and includes a mix of uppercase letters, lowercase letters, numbers, and special symbols." },
     { q: "How often should I change my passwords?", a: "Security experts recommend changing passwords every 3-6 months, or immediately if you suspect a breach. Use a unique password for each account." },
   ],
+  "WhatsApp Chat Analyzer": [
+    { q: "How do I export my WhatsApp chat for analysis?", a: "On Android: Open the chat → tap ⋮ (3 dots) → More → Export Chat → Without Media → save the ZIP. On iPhone: Open chat → tap contact/group name → Export Chat → Without Media. Then upload the ZIP or TXT file to EasyTool." },
+    { q: "Is my WhatsApp chat data private?", a: "100% private. EasyTool's WhatsApp Chat Analyzer runs entirely in your browser. Your chat file is never uploaded to any server — it never leaves your device." },
+    { q: "What file format does WhatsApp export?", a: "WhatsApp exports chats as a .zip file (containing a _chat.txt file) or directly as a .txt file. EasyTool supports both formats from Android and iPhone." },
+    { q: "Can I analyze WhatsApp group chats?", a: "Yes! EasyTool analyzes both individual and group chats. For group chats, you'll see stats for every participant — message count, word count, emoji usage, and more." },
+    { q: "What insights does the WhatsApp Chat Analyzer show?", a: "You get total messages, words, media shared, links, top senders, hourly activity chart, weekday activity, top emojis, most used words, peak chat hours, and fun facts like who sends the most messages." },
+    { q: "Why does it say 'Could not parse chat'?", a: "This usually means the file format is unexpected. Make sure you export 'Without Media' from WhatsApp and upload the original .zip or .txt file without renaming it. Both Android and iPhone exports are supported." },
+    { q: "Can I analyze old WhatsApp chats?", a: "Yes, EasyTool can analyze WhatsApp chats of any age. As long as you have the exported .txt or .zip file, the analyzer will process all messages regardless of how old they are." },
+    { q: "Does the analyzer work for Urdu and Arabic chats?", a: "Yes! EasyTool's WhatsApp Chat Analyzer supports multilingual chats including Urdu, Arabic, Hindi, and other languages. Word frequency analysis works for both English and Urdu/Arabic text." },
+  ],
 }
 
 function getDefaultFAQs(toolName: string) {

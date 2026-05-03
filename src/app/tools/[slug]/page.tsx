@@ -244,9 +244,22 @@ const toolSEO: Record<string, { title: string; description: string; keywords: st
     keywords: ["unit converter", "unit converter online free", "length converter", "weight converter", "temperature converter", "metric to imperial converter", "measurement converter free", "online unit conversion tool"],
   },
   "whatsapp-chat-analyzer": {
-    title: "WhatsApp Chat Analyzer Online Free - Chat Statistics | EasyTool",
-    description: "Analyze WhatsApp chat export online for free. Get message stats, top senders, emoji usage, active hours. No signup, 100% private browser-based tool.",
-    keywords: ["whatsapp chat analyzer", "whatsapp chat statistics", "analyze whatsapp chat free", "whatsapp chat insights", "whatsapp message counter", "whatsapp chat export analyzer", "free whatsapp analyzer online"],
+    title: "WhatsApp Chat Analyzer Online Free — Chat Stats & Insights | EasyTool",
+    description: "Analyze your WhatsApp chat export online for free. See who texts the most, peak hours, top emojis, word frequency & more. No signup, 100% private — runs in your browser.",
+    keywords: [
+      "whatsapp chat analyzer",
+      "whatsapp chat statistics",
+      "analyze whatsapp chat free",
+      "whatsapp chat insights",
+      "whatsapp message counter",
+      "whatsapp chat export analyzer",
+      "free whatsapp analyzer online",
+      "how to analyze whatsapp chat",
+      "whatsapp group chat analyzer",
+      "whatsapp chat stats",
+      "whatsapp chat history analyzer",
+      "whatsapp export analyzer",
+    ],
   },
   "passport-photo-maker": {
     title: "Passport Photo Maker Online Free - Passport Size Photo | EasyTool",
@@ -312,6 +325,106 @@ function ToolSEOContent({ tool }: { tool: typeof tools[0] }) {
   const seo = toolSEO[tool.slug]
   if (!seo) return null
 
+  // WhatsApp Chat Analyzer — deep, keyword-rich content block
+  if (tool.slug === "whatsapp-chat-analyzer") {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-6">
+        <h2 className="text-xl font-black">
+          Free WhatsApp Chat Analyzer — No Signup, 100% Private
+        </h2>
+        <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground space-y-4">
+          <p>
+            EasyTool's <strong>WhatsApp Chat Analyzer</strong> is the fastest free tool to analyze your WhatsApp conversations online.
+            Upload your exported <strong>.zip or .txt file</strong> and get instant deep insights — no account, no server upload, no privacy risk.
+            Everything runs directly in your browser.
+          </p>
+
+          <h3 className="text-base font-bold text-foreground mt-4">What can you discover with WhatsApp Chat Analysis?</h3>
+          <p>
+            Whether you want to know who texts the most in your group, what time your friends are most active, or which emojis dominate your chat —
+            our <strong>WhatsApp chat statistics tool</strong> reveals it all. You get a complete breakdown of:
+          </p>
+          <ul className="space-y-1 list-none pl-0">
+            {[
+              "Total messages, words, media files, and links shared",
+              "Top senders ranked by message count and word count",
+              "Hourly activity chart — find your peak chat hours",
+              "Day-of-week activity — which day is most active",
+              "Top 10 emojis used with exact counts",
+              "Most frequently used words (supports Urdu & Arabic too)",
+              "Media breakdown: images, videos, audio, stickers, GIFs",
+              "Deleted messages count per participant",
+              "Fun facts: longest message, average messages per day",
+            ].map(item => (
+              <li key={item} className="flex items-start gap-2 text-sm">
+                <Icons.CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <h3 className="text-base font-bold text-foreground mt-4">How to export WhatsApp chat for analysis?</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 not-prose">
+            <div className="p-4 rounded-xl bg-muted/50 border border-border/60 space-y-2">
+              <p className="font-bold text-sm text-foreground">📱 Android</p>
+              <ol className="space-y-1 text-xs text-muted-foreground list-decimal pl-4">
+                <li>Open the WhatsApp chat or group</li>
+                <li>Tap ⋮ (3 dots) → More → Export Chat</li>
+                <li>Choose <strong className="text-foreground">"Without Media"</strong></li>
+                <li>Save the ZIP file, then upload it here</li>
+              </ol>
+            </div>
+            <div className="p-4 rounded-xl bg-muted/50 border border-border/60 space-y-2">
+              <p className="font-bold text-sm text-foreground">🍎 iPhone</p>
+              <ol className="space-y-1 text-xs text-muted-foreground list-decimal pl-4">
+                <li>Open the WhatsApp chat or group</li>
+                <li>Tap the contact/group name at the top</li>
+                <li>Scroll down → Export Chat</li>
+                <li>Choose <strong className="text-foreground">"Without Media"</strong> → upload here</li>
+              </ol>
+            </div>
+          </div>
+
+          <h3 className="text-base font-bold text-foreground mt-4">Is WhatsApp Chat Analyzer safe to use?</h3>
+          <p>
+            Yes — completely safe. Unlike other WhatsApp analyzers that upload your chat to their servers,
+            EasyTool processes your <strong>WhatsApp export file entirely in your browser</strong>.
+            Your messages, contacts, and personal data never leave your device.
+            There is no server, no database, no storage — just instant, private analysis.
+          </p>
+
+          <h3 className="text-base font-bold text-foreground mt-4">Who uses WhatsApp Chat Analyzer?</h3>
+          <p>
+            Our tool is popular with couples who want to see their chat history stats, friend groups curious about who texts the most,
+            researchers studying communication patterns, and anyone who wants a fun look at their WhatsApp data.
+            It works for both <strong>individual chats and group chats</strong> of any size.
+          </p>
+
+          <h3 className="text-base font-bold text-foreground mt-4">Supported WhatsApp export formats</h3>
+          <p>
+            EasyTool supports all WhatsApp export formats — Android 12-hour and 24-hour formats, iPhone bracket format,
+            chats with en-dash separators, and multi-line messages. Both <strong>.zip</strong> (exported with media option)
+            and <strong>.txt</strong> (plain text export) files are supported. Files up to 100MB are accepted.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 not-prose">
+          {[
+            { label: "100% Free", sub: "No hidden costs" },
+            { label: "No Signup", sub: "Instant access" },
+            { label: "100% Private", sub: "Browser-only" },
+            { label: "Mobile Ready", sub: "Works on all devices" },
+          ].map(item => (
+            <div key={item.label} className="p-3 rounded-xl bg-muted/50 border border-border/60 text-center">
+              <p className="font-bold text-xs text-foreground">{item.label}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{item.sub}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-4">
       <h2 className="text-xl font-black">
@@ -374,13 +487,25 @@ export default async function ToolPage({ params }: Props) {
       "ratingCount": "1250",
       "bestRating": "5"
     },
-    "featureList": [
-      "Free to use",
-      "No signup required",
-      "No watermark",
-      "Browser-based processing",
-      "Mobile friendly"
-    ]
+    "featureList": tool.slug === "whatsapp-chat-analyzer"
+      ? [
+        "Free to use",
+        "No signup required",
+        "100% private — browser-only processing",
+        "Supports Android and iPhone exports",
+        "Analyzes individual and group chats",
+        "Message stats, emoji rankings, word frequency",
+        "Hourly and weekday activity charts",
+        "Supports Urdu, Arabic, and multilingual chats",
+        "ZIP and TXT file support",
+      ]
+      : [
+        "Free to use",
+        "No signup required",
+        "No watermark",
+        "Browser-based processing",
+        "Mobile friendly",
+      ]
   }
 
   return (
@@ -465,27 +590,51 @@ export default async function ToolPage({ params }: Props) {
             {/* How to Use */}
             <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
               <h2 className="text-xl font-black mb-6">How to use {tool.name}?</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { step: "1", title: "Upload or Input", desc: "Select your file or enter your data into the tool." },
-                  { step: "2", title: "Configure", desc: "Adjust settings and options to match your needs." },
-                  { step: "3", title: "Process", desc: "Click the action button to start processing instantly." },
-                  { step: "4", title: "Download", desc: "Get your result with one click — no watermarks." },
-                ].map(s => (
-                  <div key={s.step} className="flex gap-4">
-                    <div className={cn(
-                      "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black text-white flex-shrink-0",
-                      colors.iconBg
-                    )}>
-                      {s.step}
+              {tool.slug === "whatsapp-chat-analyzer" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { step: "1", title: "Export Your Chat", desc: "In WhatsApp, open any chat → tap ⋮ → More → Export Chat → Without Media. Save the ZIP file." },
+                    { step: "2", title: "Upload the File", desc: "Drag & drop your .zip or .txt export file onto the upload area, or click 'Choose Export File'." },
+                    { step: "3", title: "Instant Analysis", desc: "EasyTool parses your chat in seconds — no waiting, no server upload, 100% in your browser." },
+                    { step: "4", title: "Explore Insights", desc: "View message stats, top senders, hourly charts, emoji rankings, word frequency, and fun facts." },
+                  ].map(s => (
+                    <div key={s.step} className="flex gap-4">
+                      <div className={cn(
+                        "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black text-white flex-shrink-0",
+                        colors.iconBg
+                      )}>
+                        {s.step}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">{s.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-sm">{s.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { step: "1", title: "Upload or Input", desc: "Select your file or enter your data into the tool." },
+                    { step: "2", title: "Configure", desc: "Adjust settings and options to match your needs." },
+                    { step: "3", title: "Process", desc: "Click the action button to start processing instantly." },
+                    { step: "4", title: "Download", desc: "Get your result with one click — no watermarks." },
+                  ].map(s => (
+                    <div key={s.step} className="flex gap-4">
+                      <div className={cn(
+                        "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black text-white flex-shrink-0",
+                        colors.iconBg
+                      )}>
+                        {s.step}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">{s.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Why EasyTool */}
@@ -514,6 +663,24 @@ export default async function ToolPage({ params }: Props) {
 
             {/* SEO Content Block - keyword rich */}
             <ToolSEOContent tool={tool} />
+
+            {/* Tutorial Link for WhatsApp */}
+            {tool.slug === "whatsapp-chat-analyzer" && (
+              <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                  <Icons.BookOpen className="h-5 w-5 text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm mb-0.5">Don't know how to export WhatsApp chat?</p>
+                  <p className="text-xs text-muted-foreground">Read our step-by-step guide for Android and iPhone — takes less than 2 minutes.</p>
+                </div>
+                <Link href="/how-to-export-whatsapp-chat" className="flex-shrink-0">
+                  <Button variant="outline" size="sm" className="font-semibold border-green-500/30 text-green-700 dark:text-green-400 hover:bg-green-500/10 whitespace-nowrap">
+                    Read Guide <Icons.ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             {/* FAQs */}
             <ToolFaqs toolName={tool.name} />

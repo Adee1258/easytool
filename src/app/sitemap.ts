@@ -5,12 +5,12 @@ import { blogPosts } from '@/config/blog'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://easytool.live'
 
-  // Tool pages
+  // Tool pages — whatsapp-chat-analyzer gets higher priority, rest 0.8
   const toolUrls = tools.map((tool) => ({
     url: `${baseUrl}/tools/${tool.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    priority: tool.slug === 'whatsapp-chat-analyzer' ? 0.95 : 0.8,
   }))
 
   // Category pages
@@ -41,6 +41,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/how-to-export-whatsapp-chat`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/blog`,
