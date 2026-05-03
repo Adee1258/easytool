@@ -192,8 +192,8 @@ export default function BackgroundRemover() {
       const { removeBackground } = await import("@imgly/background-removal")
 
       const blob = await removeBackground(originalFileRef.current!, {
-        model: "medium",
-        publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+        model: "small",
+        publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/",
         debug: true,
         progress: (_key: string, current: number, total: number) => {
           if (total > 0) setProgress(Math.round((current / total) * 100))
