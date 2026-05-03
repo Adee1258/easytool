@@ -196,7 +196,7 @@ export default function BackgroundRemover() {
       const publicPath = `https://unpkg.com/@imgly/background-removal-data@${imglyVersion}/dist/`
 
       const blob = await removeBackground(originalFileRef.current!, {
-        model: "medium",
+        model: "isnet_fp16",
         publicPath,
         progress: (_key: string, current: number, total: number) => {
           if (total > 0) setProgress(Math.round((current / total) * 100))
