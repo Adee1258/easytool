@@ -198,6 +198,7 @@ export default function BackgroundRemover() {
       const blob = await removeBackground(originalFileRef.current!, {
         model: "isnet_fp16",
         publicPath,
+        debug: true,
         progress: (_key: string, current: number, total: number) => {
           if (total > 0) setProgress(Math.round((current / total) * 100))
         },
