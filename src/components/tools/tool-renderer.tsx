@@ -118,8 +118,8 @@ const toolComponents: Record<string, React.ComponentType<any>> = {
   "thumbnail-generator": ThumbnailGenerator,
   "image-watermark": ImageWatermark,
   "watermark-adder": ImageWatermark,
-  // "bg-remover": BgRemover,        // Coming soon - needs API key
-  // "background-remover": BgRemover, // Coming soon - needs API key
+  "bg-remover": BgRemover,
+  "background-remover": BgRemover,
   "image-enhancer": ImageEnhancer,
 
   // Text Tools
