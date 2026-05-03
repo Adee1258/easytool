@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
+import Link from "next/link"
 import { tools } from "@/config/tools"
 import * as Icons from "lucide-react"
 import ToolRenderer from "@/components/tools/tool-renderer"
@@ -7,6 +8,7 @@ import RelatedTools from "@/components/tools/related-tools"
 import ToolFaqs from "@/components/tools/tool-faqs"
 import Breadcrumbs from "@/components/layout/breadcrumbs"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface Props {
