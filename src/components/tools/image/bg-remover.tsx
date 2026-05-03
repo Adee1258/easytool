@@ -3,8 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { useDropzone } from "react-dropzone"
 import {
-  Upload, Download, Trash2, Sparkles, ZoomIn,
-  CheckCircle, RefreshCw, Palette, ArrowRightLeft
+  Upload, Download, Trash2, Sparkles,
+  RefreshCw, Palette, ArrowRightLeft
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -131,8 +131,8 @@ export default function BackgroundRemover() {
       const config = {
         publicPath: "https://unpkg.com/@imgly/background-removal@1.4.5/dist/",
         model: "medium" as const,
-        progress: (p: number) => {
-          setProgress(Math.round(p * 100))
+        progress: (_key: string, current: number, total: number) => {
+          setProgress(Math.round((current / total) * 100))
         },
       }
 
@@ -291,7 +291,7 @@ export default function BackgroundRemover() {
                     <div>
                       <p className="font-bold text-sm">{originalFileRef.current?.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {(originalFileRef.current?.size / 1024 / 1024).toFixed(2)} MB
+                        {originalFileRef.current?.size ? (originalFileRef.current.size / 1024 / 1024).toFixed(2) : "0"} MB
                       </p>
                     </div>
                   </div>
