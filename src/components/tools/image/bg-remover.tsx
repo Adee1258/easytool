@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import packageJson from "../../../../package.json"
 
 type Stage = "idle" | "uploading" | "scanning" | "processing" | "done" | "error"
 
@@ -192,16 +191,12 @@ export default function BackgroundRemover() {
     try {
       const { removeBackground } = await import("@imgly/background-removal")
 
-      const imglyVersion = packageJson.dependencies["@imgly/background-removal"].replace("^", "")
-      const publicPath = `https://unpkg.com/@imgly/background-removal@${imglyVersion}/dist/`
-
       const blob = await removeBackground(originalFileRef.current!, {
         model: "medium",
-        publicPath,
         progress: (_key: string, current: number, total: number) => {
           if (total > 0) setProgress(Math.round((current / total) * 100))
         },
-      } as any)
+      })
 
       const url = setTrackedResultUrl(blob)
       setResultUrl(url)
