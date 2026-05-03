@@ -126,14 +126,14 @@ export default function BackgroundRemover() {
     setProgress(0)
 
     try {
-      const { removeBackground } = await import("@imgly/background-removal")
+      const removeBackground = (await import("@imgly/background-removal")).default
 
       const config = {
-        publicPath: "https://unpkg.com/@imgly/background-removal@1.4.5/dist/",
-        model: "medium" as const,
+        model: "isnet_fp16" as const,
         progress: (_key: string, current: number, total: number) => {
           setProgress(Math.round((current / total) * 100))
         },
+        debug: true,
       }
 
       const blob = await removeBackground(originalUrl!, config)
@@ -142,8 +142,8 @@ export default function BackgroundRemover() {
       setStage("done")
       toast.success("Background removed! 🎉")
     } catch (err) {
-      console.error(err)
-      setErrorMsg("Processing failed. Please try a different image.")
+      console.error("AI Processing Error:", err)
+      setErrorMsg("Processing failed. Please try a different image or check your internet connection.")
       setStage("error")
       toast.error("Processing failed. Please try a different image.")
     }
@@ -161,6 +161,7 @@ export default function BackgroundRemover() {
   const applyBackground = (bgColor: string) => {
     if (!resultUrl) return
     const img = new Image()
+    img.crossOrigin = "anonymous"
     img.src = resultUrl
     img.onload = () => {
       const canvas = document.createElement('canvas')
@@ -206,7 +207,7 @@ export default function BackgroundRemover() {
   }
 
   const download = () => {
-    const url = selectedBgColor !== "transparent" ? previewWithBg : resultUrl
+    const url = selectedBgColor !== "transparent" && previewWithBg ? previewWithBg : resultUrl
     if (!url) return
 
     const link = document.createElement("a")
