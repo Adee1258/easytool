@@ -49,6 +49,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
+      url: `${baseUrl}/whatsapp-response-time-checker`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.82,
+    },
+    {
+      url: `${baseUrl}/whatsapp-most-active-member`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.82,
+    },
+    {
+      url: `${baseUrl}/whatsapp-emoji-analyzer`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.80,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
