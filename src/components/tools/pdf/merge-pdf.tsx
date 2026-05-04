@@ -2,14 +2,14 @@
 
 import { useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
-import { 
-  FilePlus, 
-  FileText, 
-  Download, 
-  Loader2, 
-  Trash2, 
-  ArrowUp, 
-  ArrowDown, 
+import {
+  FilePlus,
+  FileText,
+  Download,
+  Loader2,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
   Image as ImageIcon,
   File,
   GripVertical,
@@ -57,6 +57,9 @@ export default function MergePDF() {
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
       'image/webp': ['.webp'],
+      'image/gif': ['.gif'],
+      'image/bmp': ['.bmp'],
+      'image/tiff': ['.tiff', '.tif'],
       'text/plain': ['.txt']
     },
     multiple: true
@@ -208,12 +211,12 @@ export default function MergePDF() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      <div 
-        {...getRootProps()} 
+      <div
+        {...getRootProps()}
         className={cn(
           "border-4 border-dashed rounded-3xl p-12 text-center cursor-pointer transition-all duration-300 min-h-[300px] flex flex-col items-center justify-center space-y-6 shadow-lg",
-          isDragActive 
-            ? "border-primary bg-primary/15 scale-[1.01] shadow-xl" 
+          isDragActive
+            ? "border-primary bg-primary/15 scale-[1.01] shadow-xl"
             : "border-muted-foreground/25 hover:border-primary/60 hover:bg-muted/50 hover:shadow-xl"
         )}
       >
@@ -227,18 +230,23 @@ export default function MergePDF() {
             Drag and drop your files here, or click to browse
           </p>
         </div>
-        
-        <Button 
-          size="lg" 
+
+        <Button
+          size="lg"
           className="h-14 px-10 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
         >
           <FilePlus className="mr-2 h-6 w-6" />
           Choose Files
         </Button>
 
-        <div className="flex flex-wrap gap-3 justify-center mt-4">
+        <div className="flex flex-wrap gap-2 justify-center mt-4">
           <span className="px-4 py-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-xl text-sm font-semibold">PDF</span>
-          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">JPG/PNG</span>
+          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">JPG</span>
+          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">PNG</span>
+          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">WebP</span>
+          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">GIF</span>
+          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">BMP</span>
+          <span className="px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl text-sm font-semibold">TIFF</span>
           <span className="px-4 py-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-xl text-sm font-semibold">TXT</span>
         </div>
       </div>
@@ -257,7 +265,7 @@ export default function MergePDF() {
 
           <div className="grid grid-cols-1 gap-4">
             {files.map(({ file, id, preview }, index) => (
-              <Card 
+              <Card
                 key={id}
                 draggable
                 onDragStart={() => handleDragStart(index)}
@@ -300,27 +308,27 @@ export default function MergePDF() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button 
-                      variant="secondary" 
-                      size="icon" 
+                    <Button
+                      variant="secondary"
+                      size="icon"
                       onClick={() => moveFile(index, 'up')}
                       disabled={index === 0}
                       className="h-10 w-10"
                     >
                       <ArrowUp className="h-5 w-5" />
                     </Button>
-                    <Button 
-                      variant="secondary" 
-                      size="icon" 
+                    <Button
+                      variant="secondary"
+                      size="icon"
                       onClick={() => moveFile(index, 'down')}
                       disabled={index === files.length - 1}
                       className="h-10 w-10"
                     >
                       <ArrowDown className="h-5 w-5" />
                     </Button>
-                    <Button 
-                      variant="destructive" 
-                      size="icon" 
+                    <Button
+                      variant="destructive"
+                      size="icon"
                       onClick={() => removeFile(index)}
                       className="h-10 w-10"
                     >
@@ -339,7 +347,7 @@ export default function MergePDF() {
                 <span>{progress}%</span>
               </div>
               <div className="w-full bg-muted rounded-full h-4 overflow-hidden shadow-inner">
-                <div 
+                <div
                   className="bg-gradient-to-r from-primary to-primary/80 h-full transition-all duration-300 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
@@ -347,10 +355,10 @@ export default function MergePDF() {
             </div>
           )}
 
-          <Button 
+          <Button
             size="lg"
-            className="w-full h-18 text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85" 
-            onClick={mergePDFs} 
+            className="w-full h-18 text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85"
+            onClick={mergePDFs}
             disabled={loading || files.length < 2}
           >
             {loading ? (
@@ -370,7 +378,7 @@ export default function MergePDF() {
 
       <div className="p-8 bg-gradient-to-br from-muted/60 to-muted/30 rounded-3xl border-2 border-dashed border-muted-foreground/20 shadow-lg">
         <h4 className="font-bold text-xl mb-5 flex items-center gap-3">
-          <FileText className="h-6 w-6 text-primary" /> 
+          <FileText className="h-6 w-6 text-primary" />
           How to Use
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-base text-muted-foreground">
