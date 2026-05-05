@@ -175,6 +175,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
+      url: `${baseUrl}/whatsapp-chat-analyzer-online`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/whatsapp-chat-statistics`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.92,
+    },
+    {
       url: `${baseUrl}/blog/whatsapp-chat-analyzer-kaise-use-karein`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
