@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { useDropzone } from "react-dropzone"
 import { 
   FilePlus, 
@@ -16,7 +16,8 @@ import {
   Upload,
   Zap,
   ShieldCheck,
-  Layers
+  Layers,
+  XCircle
 } from "lucide-react"
 import { PDFDocument } from "pdf-lib"
 import jsPDF from "jspdf"
@@ -29,6 +30,7 @@ interface FileWithPreview {
   file: File
   id: string
   preview?: string
+  pageCount?: number
 }
 
 export default function MergePDF() {
@@ -36,9 +38,40 @@ export default function MergePDF() {
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [statusMessage, setStatusMessage] = useState("")
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => {
+  useEffect(() => {
+    return () => {
+      files.forEach(f => {
+        if (f.preview) {
+          URL.revokeObjectURL(f.preview)
+        }
+      })
+    }
+  }, [])
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`
+    }
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`
+  }
+
+  const countPDFPages = async (file: File): Promise<number> => {
+    try {
+      if (file.type === 'application/pdf') {
+        const fileBytes = await file.arrayBuffer()
+        const pdfDoc = await PDFDocument.load(fileBytes)
+        return pdfDoc.getPageCount()
+      }
+      return 1
+    } catch {
+      return 1
+    }
+  }
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const newFiles = await Promise.all(acceptedFiles.map(async file => {
       const fileWithPreview: FileWithPreview = {
         file,
         id: `${file.name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -48,9 +81,11 @@ export default function MergePDF() {
         fileWithPreview.preview = URL.createObjectURL(file)
       }
 
+      fileWithPreview.pageCount = await countPDFPages(file)
       return fileWithPreview
-    })
+    }))
     setFiles(prev => [...prev, ...newFiles])
+    toast.success(`${acceptedFiles.length} file${acceptedFiles.length > 1 ? 's' : ''} added successfully!`)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -74,6 +109,17 @@ export default function MergePDF() {
       URL.revokeObjectURL(fileToRemove.preview)
     }
     setFiles(prev => prev.filter((_, i) => i !== index))
+    toast.info("File removed")
+  }
+
+  const clearAllFiles = () => {
+    files.forEach(f => {
+      if (f.preview) {
+        URL.revokeObjectURL(f.preview)
+      }
+    })
+    setFiles([])
+    toast.info("All files cleared")
   }
 
   const moveFile = (index: number, direction: 'up' | 'down') => {
@@ -109,12 +155,23 @@ export default function MergePDF() {
     return new Promise((resolve, reject) => {
       const img = new Image()
       img.onload = () => {
+        const maxWidth = 1240
+        const maxHeight = 1754
+        
+        let { width, height } = img
+        
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height)
+          width = Math.round(width * ratio)
+          height = Math.round(height * ratio)
+        }
+
         const pdf = new jsPDF({
-          orientation: img.width > img.height ? 'landscape' : 'portrait',
+          orientation: width > height ? 'landscape' : 'portrait',
           unit: 'px',
-          format: [img.width, img.height]
+          format: [width, height]
         })
-        pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height)
+        pdf.addImage(img, 'JPEG', 0, 0, width, height)
         const pdfBytes = pdf.output('arraybuffer')
         resolve(new Uint8Array(pdfBytes))
       }
@@ -126,10 +183,24 @@ export default function MergePDF() {
   const convertTextToPDF = async (file: File): Promise<Uint8Array> => {
     const text = await file.text()
     const pdf = new jsPDF()
-    const lines = pdf.splitTextToSize(text, 180)
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    const margin = 14
+    const lineHeight = 6
+    const maxLinesPerPage = Math.floor((pageHeight - margin * 2) / lineHeight)
+    
     pdf.setFont('helvetica')
     pdf.setFontSize(12)
-    pdf.text(lines, 14, 20)
+    
+    const lines = pdf.splitTextToSize(text, 180)
+    
+    for (let i = 0; i < lines.length; i++) {
+      if (i > 0 && i % maxLinesPerPage === 0) {
+        pdf.addPage()
+      }
+      const yPosition = margin + ((i % maxLinesPerPage) * lineHeight)
+      pdf.text(lines[i], margin, yPosition)
+    }
+    
     const pdfBytes = pdf.output('arraybuffer')
     return new Uint8Array(pdfBytes)
   }
@@ -156,6 +227,10 @@ export default function MergePDF() {
     return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
   }
 
+  const getTotalPages = () => {
+    return files.reduce((sum, f) => sum + (f.pageCount || 1), 0)
+  }
+
   const mergePDFs = async () => {
     if (files.length < 2) {
       toast.error("Please select at least 2 files to merge.")
@@ -164,6 +239,7 @@ export default function MergePDF() {
 
     setLoading(true)
     setProgress(0)
+    setStatusMessage("Preparing files...")
 
     try {
       const mergedPdf = await PDFDocument.create()
@@ -173,26 +249,35 @@ export default function MergePDF() {
         const { file } = files[i]
         let pdfDoc: PDFDocument
 
-        if (file.type === 'application/pdf') {
-          const fileBytes = await file.arrayBuffer()
-          pdfDoc = await PDFDocument.load(fileBytes)
-        } else if (file.type.startsWith('image/')) {
-          const pdfBytes = await convertImageToPDF(file)
-          pdfDoc = await PDFDocument.load(pdfBytes)
-        } else if (file.type === 'text/plain') {
-          const pdfBytes = await convertTextToPDF(file)
-          pdfDoc = await PDFDocument.load(pdfBytes)
-        } else {
-          toast.error(`Unsupported file type: ${file.name}`)
+        setStatusMessage(`Processing ${file.name}...`)
+
+        try {
+          if (file.type === 'application/pdf') {
+            const fileBytes = await file.arrayBuffer()
+            pdfDoc = await PDFDocument.load(fileBytes)
+          } else if (file.type.startsWith('image/')) {
+            const pdfBytes = await convertImageToPDF(file)
+            pdfDoc = await PDFDocument.load(pdfBytes)
+          } else if (file.type === 'text/plain') {
+            const pdfBytes = await convertTextToPDF(file)
+            pdfDoc = await PDFDocument.load(pdfBytes)
+          } else {
+            toast.error(`Unsupported file type: ${file.name}`)
+            continue
+          }
+
+          const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices())
+          copiedPages.forEach((page) => mergedPdf.addPage(page))
+        } catch (err) {
+          console.error(`Error processing ${file.name}:`, err)
+          toast.error(`Failed to process ${file.name}. Skipping this file.`)
           continue
         }
-
-        const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices())
-        copiedPages.forEach((page) => mergedPdf.addPage(page))
 
         setProgress(Math.round(((i + 1) / totalFiles) * 100))
       }
 
+      setStatusMessage("Generating final PDF...")
       const mergedPdfBytes = await mergedPdf.save()
       const blob = new Blob([mergedPdfBytes as unknown as BlobPart], { type: 'application/pdf' })
       const url = URL.createObjectURL(blob)
@@ -202,13 +287,15 @@ export default function MergePDF() {
       link.download = `merged-${Date.now()}.pdf`
       link.click()
 
-      toast.success("Files merged successfully!")
+      URL.revokeObjectURL(url)
+      toast.success(`Successfully merged ${files.length} files (${getTotalPages()} pages)!`)
     } catch (error) {
       console.error(error)
-      toast.error("Failed to merge files. Please ensure all files are valid.")
+      toast.error("Failed to merge files. Please check your files and try again.")
     } finally {
       setLoading(false)
       setProgress(0)
+      setStatusMessage("")
     }
   }
 
@@ -267,26 +354,44 @@ export default function MergePDF() {
           <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">PNG</span>
           <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">WebP</span>
           <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">GIF</span>
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">BMP</span>
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">TIFF</span>
           <span className="px-3 py-1.5 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400 rounded-lg text-sm font-medium">TXT</span>
         </div>
       </div>
 
       {files.length > 0 && (
         <div className="space-y-8">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold flex items-center gap-3">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <FileText className="h-6 w-6 text-primary" />
               </div>
-              Your Files ({files.length})
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              Drag to reorder • First file appears first
-            </p>
+              <div>
+                <h3 className="text-2xl font-bold">Your Files</h3>
+                <p className="text-sm text-muted-foreground">
+                  {files.length} file{files.length > 1 ? 's' : ''} • {getTotalPages()} page{getTotalPages() > 1 ? 's' : ''} total
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-muted-foreground text-sm hidden sm:block">
+                Drag to reorder • First file appears first
+              </p>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={clearAllFiles}
+                className="text-destructive hover:bg-destructive/10"
+              >
+                <XCircle className="mr-1.5 h-4 w-4" />
+                Clear All
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            {files.map(({ file, id, preview }, index) => (
+            {files.map(({ file, id, preview, pageCount }, index) => (
               <Card 
                 key={id}
                 draggable
@@ -320,8 +425,13 @@ export default function MergePDF() {
                       <p className="font-medium text-sm line-clamp-1">{file.name}</p>
                       <div className="flex items-center gap-3 mt-0.5">
                         <span className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                          {formatFileSize(file.size)}
                         </span>
+                        {pageCount && pageCount > 1 && (
+                          <span className="text-xs text-muted-foreground">
+                            • {pageCount} pages
+                          </span>
+                        )}
                         <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                           #{index + 1}
                         </span>
@@ -367,13 +477,13 @@ export default function MergePDF() {
               <div className="flex justify-between text-sm font-medium">
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  Merging files...
+                  {statusMessage || "Merging files..."}
                 </span>
-                <span className="text-primary">{progress}%</span>
+                <span className="text-primary font-bold">{progress}%</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                 <div 
-                  className="bg-primary h-full transition-all duration-300 rounded-full"
+                  className="bg-gradient-to-r from-primary via-primary/90 to-primary h-full transition-all duration-300 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -389,12 +499,12 @@ export default function MergePDF() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Merging Files...
+                {statusMessage || "Merging Files..."}
               </>
             ) : (
               <>
                 <Download className="mr-2 h-5 w-5" />
-                Merge & Download PDF
+                Merge & Download PDF ({files.length} files • {getTotalPages()} pages)
               </>
             )}
           </Button>
@@ -428,7 +538,7 @@ export default function MergePDF() {
           </div>
           <h4 className="font-bold text-lg mb-2">Multiple Formats</h4>
           <p className="text-muted-foreground text-sm">
-            Supports PDFs, images (JPG, PNG, WebP, GIF), and text files
+            Supports PDFs, images (JPG, PNG, WebP, GIF, BMP, TIFF), and text files
           </p>
         </div>
       </div>
