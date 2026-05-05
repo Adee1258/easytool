@@ -13,9 +13,10 @@ import {
   Image as ImageIcon,
   File,
   GripVertical,
-  UploadCloud,
-  Sparkles,
-  MousePointerClick
+  Upload,
+  Zap,
+  ShieldCheck,
+  Layers
 } from "lucide-react"
 import { PDFDocument } from "pdf-lib"
 import jsPDF from "jspdf"
@@ -135,13 +136,13 @@ export default function MergePDF() {
 
   const getFileIcon = (file: File) => {
     if (file.type === 'application/pdf') {
-      return <FileText className="h-6 w-6" />
+      return <FileText className="h-5 w-5" />
     } else if (file.type.startsWith('image/')) {
-      return <ImageIcon className="h-6 w-6" />
+      return <ImageIcon className="h-5 w-5" />
     } else if (file.type === 'text/plain') {
-      return <File className="h-6 w-6" />
+      return <File className="h-5 w-5" />
     }
-    return <File className="h-6 w-6" />
+    return <File className="h-5 w-5" />
   }
 
   const getFileIconBg = (file: File) => {
@@ -212,91 +213,79 @@ export default function MergePDF() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-10">
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+          Merge PDF Files
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Combine PDFs, images, and text files into a single professional PDF document
+        </p>
+      </div>
+
       <div 
         {...getRootProps()} 
         className={cn(
-          "border-8 border-dashed rounded-[3rem] p-16 text-center cursor-pointer transition-all duration-500 min-h-[450px] flex flex-col items-center justify-center space-y-8 shadow-2xl relative overflow-hidden",
+          "border-2 rounded-2xl p-10 text-center cursor-pointer transition-all duration-300 min-h-[320px] flex flex-col items-center justify-center space-y-6 bg-background shadow-sm relative overflow-hidden group",
           isDragActive 
-            ? "border-primary bg-primary/15 scale-[1.02] shadow-3xl" 
-            : "border-primary/60 hover:border-primary hover:bg-primary/5 hover:shadow-3xl"
+            ? "border-primary bg-primary/5 shadow-md scale-[1.01]" 
+            : "border-border hover:border-primary/50 hover:bg-muted/30 hover:shadow-md"
         )}
       >
         <input {...getInputProps()} />
         
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-8 left-8 w-16 h-16 border-l-4 border-t-4 border-primary rounded-tl-[2rem] opacity-50" />
-          <div className="absolute top-8 right-8 w-16 h-16 border-r-4 border-t-4 border-primary rounded-tr-[2rem] opacity-50" />
-          <div className="absolute bottom-8 left-8 w-16 h-16 border-l-4 border-b-4 border-primary rounded-bl-[2rem] opacity-50" />
-          <div className="absolute bottom-8 right-8 w-16 h-16 border-r-4 border-b-4 border-primary rounded-br-[2rem] opacity-50" />
-        </div>
-
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
         <div className="relative z-10">
-          <div className="p-12 rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 animate-pulse">
-            <UploadCloud className="h-20 w-20" />
-          </div>
-          <div className="absolute -bottom-4 -right-4 p-4 bg-yellow-400 text-yellow-900 rounded-full shadow-2xl animate-bounce">
-            <Sparkles className="h-7 w-7" />
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-inner">
+            <Upload className="h-12 w-12" />
           </div>
         </div>
 
-        <div className="space-y-6 relative z-10">
-          <h3 className="text-5xl font-black bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-            Upload Files
+        <div className="space-y-3 relative z-10">
+          <h3 className="text-2xl font-bold text-foreground">
+            {isDragActive ? "Drop files here" : "Upload your files"}
           </h3>
-          <p className="text-2xl text-muted-foreground max-w-2xl mx-auto font-semibold">
-            👆 CLICK ANYWHERE HERE or drag and drop your files
+          <p className="text-muted-foreground">
+            Drag and drop files here, or click to browse
           </p>
         </div>
         
         <div className="relative z-10">
           <Button 
             size="lg" 
-            className="h-20 px-16 text-2xl font-black shadow-3xl hover:shadow-4xl transition-all duration-300 bg-gradient-to-r from-primary via-primary/90 to-primary/80 hover:from-primary/95 hover:via-primary hover:to-primary/90 border-4 border-primary/50 hover:border-primary group relative overflow-hidden"
+            className="h-12 px-8 text-base font-semibold shadow-sm hover:shadow-md transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer" />
-            <div className="flex items-center gap-5 relative z-10">
-              <div className="p-3 bg-white/25 rounded-full border-2 border-white/30">
-                <FilePlus className="h-8 w-8" />
-              </div>
-              <div className="text-left">
-                <div className="flex items-center gap-2">
-                  <MousePointerClick className="h-6 w-6 animate-bounce" />
-                  <span>CLICK HERE!</span>
-                </div>
-                <div className="text-lg opacity-90">Choose Files</div>
-              </div>
-            </div>
+            <FilePlus className="mr-2 h-5 w-5" />
+            Browse Files
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-3 justify-center relative z-10">
-          <span className="px-6 py-3 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-2xl text-base font-black shadow-lg">PDF</span>
-          <span className="px-6 py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-2xl text-base font-black shadow-lg">JPG</span>
-          <span className="px-6 py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-2xl text-base font-black shadow-lg">PNG</span>
-          <span className="px-6 py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-2xl text-base font-black shadow-lg">WebP</span>
-          <span className="px-6 py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-2xl text-base font-black shadow-lg">GIF</span>
-          <span className="px-6 py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-2xl text-base font-black shadow-lg">BMP</span>
-          <span className="px-6 py-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-2xl text-base font-black shadow-lg">TIFF</span>
-          <span className="px-6 py-3 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-2xl text-base font-black shadow-lg">TXT</span>
+        <div className="flex flex-wrap gap-2 justify-center relative z-10">
+          <span className="px-3 py-1.5 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-lg text-sm font-medium">PDF</span>
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">JPG</span>
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">PNG</span>
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">WebP</span>
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-sm font-medium">GIF</span>
+          <span className="px-3 py-1.5 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400 rounded-lg text-sm font-medium">TXT</span>
         </div>
       </div>
 
       {files.length > 0 && (
         <div className="space-y-8">
           <div className="flex items-center justify-between">
-            <h3 className="text-4xl font-black flex items-center gap-4">
-              <div className="p-4 bg-primary/15 rounded-3xl">
-                <FileText className="h-9 w-9 text-primary" />
+            <h3 className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <FileText className="h-6 w-6 text-primary" />
               </div>
               Your Files ({files.length})
             </h3>
-            <p className="text-muted-foreground text-xl font-semibold">
-              Drag to reorder • First file will be at the top
+            <p className="text-muted-foreground text-sm">
+              Drag to reorder • First file appears first
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-3">
             {files.map(({ file, id, preview }, index) => (
               <Card 
                 key={id}
@@ -305,67 +294,67 @@ export default function MergePDF() {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
                 className={cn(
-                  "group hover:border-primary transition-all duration-300 overflow-hidden shadow-xl hover:shadow-2xl border-4",
-                  draggedIndex === index ? "opacity-50 scale-98" : "opacity-100"
+                  "group hover:border-primary/50 transition-all duration-200 overflow-hidden border",
+                  draggedIndex === index ? "opacity-50 scale-[0.99]" : "opacity-100"
                 )}
               >
-                <CardContent className="p-8 flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-8 flex-1 min-w-0">
-                    <div className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-primary transition-colors p-4 hover:bg-primary/10 rounded-3xl">
-                      <GripVertical className="h-9 w-9" />
+                <CardContent className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-primary transition-colors p-1.5 hover:bg-primary/10 rounded-lg">
+                      <GripVertical className="h-5 w-5" />
                     </div>
 
                     {preview && (
-                      <div className="w-20 h-20 rounded-3xl overflow-hidden border-4 border-border flex-shrink-0 shadow-xl">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden border flex-shrink-0">
                         <img src={preview} alt={file.name} className="w-full h-full object-cover" />
                       </div>
                     )}
 
                     {!preview && (
-                      <div className={cn("p-5 rounded-3xl flex-shrink-0 shadow-xl", getFileIconBg(file))}>
+                      <div className={cn("p-2.5 rounded-lg flex-shrink-0", getFileIconBg(file))}>
                         {getFileIcon(file)}
                       </div>
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-xl line-clamp-1">{file.name}</p>
-                      <div className="flex items-center gap-5 mt-3">
-                        <span className="text-lg text-muted-foreground font-semibold">
+                      <p className="font-medium text-sm line-clamp-1">{file.name}</p>
+                      <div className="flex items-center gap-3 mt-0.5">
+                        <span className="text-xs text-muted-foreground">
                           {(file.size / 1024 / 1024).toFixed(2)} MB
                         </span>
-                        <span className="px-4 py-1.5 bg-primary/20 text-primary rounded-full text-base font-black">
+                        <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                           #{index + 1}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 flex-shrink-0">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <Button 
-                      variant="secondary" 
+                      variant="ghost" 
                       size="icon" 
                       onClick={() => moveFile(index, 'up')}
                       disabled={index === 0}
-                      className="h-14 w-14 rounded-2xl shadow-xl hover:shadow-2xl border-2"
+                      className="h-8 w-8"
                     >
-                      <ArrowUp className="h-7 w-7" />
+                      <ArrowUp className="h-4 w-4" />
                     </Button>
                     <Button 
-                      variant="secondary" 
+                      variant="ghost" 
                       size="icon" 
                       onClick={() => moveFile(index, 'down')}
                       disabled={index === files.length - 1}
-                      className="h-14 w-14 rounded-2xl shadow-xl hover:shadow-2xl border-2"
+                      className="h-8 w-8"
                     >
-                      <ArrowDown className="h-7 w-7" />
+                      <ArrowDown className="h-4 w-4" />
                     </Button>
                     <Button 
-                      variant="destructive" 
+                      variant="ghost" 
                       size="icon" 
                       onClick={() => removeFile(index)}
-                      className="h-14 w-14 rounded-2xl shadow-xl hover:shadow-2xl border-2"
+                      className="h-8 w-8 text-destructive hover:bg-destructive/10"
                     >
-                      <Trash2 className="h-7 w-7" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -374,102 +363,113 @@ export default function MergePDF() {
           </div>
 
           {loading && (
-            <div className="space-y-5 bg-muted/50 p-8 rounded-[2rem] shadow-2xl border-4 border-dashed border-border">
-              <div className="flex justify-between text-xl font-black">
-                <span className="flex items-center gap-3">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="space-y-3 bg-muted/50 p-5 rounded-xl border">
+              <div className="flex justify-between text-sm font-medium">
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   Merging files...
                 </span>
-                <span className="text-primary text-2xl">{progress}%</span>
+                <span className="text-primary">{progress}%</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-10 overflow-hidden shadow-inner border-4 border-border">
+              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                 <div 
-                  className="bg-gradient-to-r from-primary via-primary/90 to-primary h-full transition-all duration-500 rounded-full relative overflow-hidden"
+                  className="bg-primary h-full transition-all duration-300 rounded-full"
                   style={{ width: `${progress}%` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
-                </div>
+                />
               </div>
             </div>
           )}
 
-          <div className="relative">
-            <div className="absolute -inset-2 bg-gradient-to-r from-primary via-primary/70 to-primary rounded-[2rem] blur-xl opacity-60" />
-            <Button 
-              size="lg"
-              className="relative w-full h-24 text-3xl font-black shadow-3xl hover:shadow-4xl transition-all duration-300 bg-gradient-to-r from-primary via-primary/90 to-primary/85 hover:from-primary/95 hover:via-primary hover:to-primary/90 border-0 group overflow-hidden"
-              onClick={mergePDFs} 
-              disabled={loading || files.length < 2}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer" />
-              <div className="flex items-center gap-6 relative z-10">
-                <div className="p-4 bg-white/25 rounded-3xl border-4 border-white/30">
-                  {loading ? (
-                    <Loader2 className="h-10 w-10 animate-spin" />
-                  ) : (
-                    <Download className="h-10 w-10" />
-                  )}
-                </div>
-                {loading ? (
-                  <span>⏳ Processing... Please Wait ⏳</span>
-                ) : (
-                  <span>🚀 Merge & Download {files.length} Files 🚀</span>
-                )}
-              </div>
-            </Button>
-          </div>
+          <Button 
+            size="lg"
+            className="w-full h-14 text-lg font-semibold shadow-sm hover:shadow-md transition-all duration-300"
+            onClick={mergePDFs} 
+            disabled={loading || files.length < 2}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Merging Files...
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-5 w-5" />
+                Merge & Download PDF
+              </>
+            )}
+          </Button>
         </div>
       )}
 
-      <div className="p-12 bg-gradient-to-br from-muted/80 to-muted/50 rounded-[2rem] border-4 border-dashed border-muted-foreground/30 shadow-2xl">
-        <h4 className="font-black text-3xl mb-8 flex items-center gap-5">
-          <div className="p-4 bg-primary/20 rounded-3xl">
-            <FileText className="h-9 w-9 text-primary" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="p-6 bg-gradient-to-br from-primary/5 to-background rounded-xl border border-primary/20">
+          <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
+            <Zap className="h-6 w-6 text-primary" />
           </div>
-          How to Use
+          <h4 className="font-bold text-lg mb-2">Lightning Fast</h4>
+          <p className="text-muted-foreground text-sm">
+            All processing happens locally in your browser - no uploads needed
+          </p>
+        </div>
+        
+        <div className="p-6 bg-gradient-to-br from-primary/5 to-background rounded-xl border border-primary/20">
+          <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
+            <ShieldCheck className="h-6 w-6 text-primary" />
+          </div>
+          <h4 className="font-bold text-lg mb-2">100% Secure</h4>
+          <p className="text-muted-foreground text-sm">
+            Your files never leave your device. Complete privacy guaranteed
+          </p>
+        </div>
+        
+        <div className="p-6 bg-gradient-to-br from-primary/5 to-background rounded-xl border border-primary/20">
+          <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
+            <Layers className="h-6 w-6 text-primary" />
+          </div>
+          <h4 className="font-bold text-lg mb-2">Multiple Formats</h4>
+          <p className="text-muted-foreground text-sm">
+            Supports PDFs, images (JPG, PNG, WebP, GIF), and text files
+          </p>
+        </div>
+      </div>
+
+      <div className="p-8 bg-gradient-to-br from-muted/30 to-background rounded-2xl border">
+        <h4 className="font-bold text-xl mb-6 flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <FileText className="h-5 w-5 text-primary" />
+          </div>
+          How It Works
         </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-lg text-muted-foreground">
-          <div className="flex items-start gap-6 p-8 bg-background rounded-[2rem] shadow-2xl border-4 border-border/70 hover:border-primary transition-all duration-300 hover:shadow-3xl">
-            <div className="p-4 bg-primary/20 rounded-3xl text-primary font-black text-2xl shrink-0">1</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary font-bold shrink-0">1</div>
             <div>
-              <h5 className="font-black text-2xl text-foreground mb-3">Upload Files</h5>
-              <p className="text-xl">Click anywhere in the big box or the huge "CLICK HERE!" button</p>
+              <h5 className="font-semibold text-foreground mb-1">Upload Files</h5>
+              <p className="text-sm text-muted-foreground">
+                Select or drag your PDF, image, and text files
+              </p>
             </div>
           </div>
-          <div className="flex items-start gap-6 p-8 bg-background rounded-[2rem] shadow-2xl border-4 border-border/70 hover:border-primary transition-all duration-300 hover:shadow-3xl">
-            <div className="p-4 bg-primary/20 rounded-3xl text-primary font-black text-2xl shrink-0">2</div>
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary font-bold shrink-0">2</div>
             <div>
-              <h5 className="font-black text-2xl text-foreground mb-3">Reorder Files</h5>
-              <p className="text-xl">Drag files to change their order. First file appears at the top</p>
+              <h5 className="font-semibold text-foreground mb-1">Arrange Order</h5>
+              <p className="text-sm text-muted-foreground">
+                Drag files to arrange them in your desired sequence
+              </p>
             </div>
           </div>
-          <div className="flex items-start gap-6 p-8 bg-background rounded-[2rem] shadow-2xl border-4 border-border/70 hover:border-primary transition-all duration-300 hover:shadow-3xl">
-            <div className="p-4 bg-primary/20 rounded-3xl text-primary font-black text-2xl shrink-0">3</div>
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary font-bold shrink-0">3</div>
             <div>
-              <h5 className="font-black text-2xl text-foreground mb-3">Merge &amp; Download</h5>
-              <p className="text-xl">Click the massive glowing button at the bottom!</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-6 p-8 bg-background rounded-[2rem] shadow-2xl border-4 border-green-500/40 hover:border-green-500 transition-all duration-300 hover:shadow-3xl">
-            <div className="p-4 bg-green-500/20 rounded-3xl text-green-600 font-black text-2xl shrink-0">✓</div>
-            <div>
-              <h5 className="font-black text-2xl text-foreground mb-3">100% Secure</h5>
-              <p className="text-xl">Files stay on your device - never uploaded to any server</p>
+              <h5 className="font-semibold text-foreground mb-1">Download</h5>
+              <p className="text-sm text-muted-foreground">
+                Click merge and download your combined PDF document
+              </p>
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes shimmer {
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        .animate-shimmer {
-          animation: shimmer 1.5s infinite;
-        }
-      `}</style>
     </div>
   )
 }
