@@ -121,6 +121,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.88,
     },
     {
+      url: `${baseUrl}/compress-jpg`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.90,
+    },
+    {
+      url: `${baseUrl}/compress-png`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.90,
+    },
+    {
       url: `${baseUrl}/tools`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
