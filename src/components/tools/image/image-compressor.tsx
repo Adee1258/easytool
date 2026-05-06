@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
@@ -70,6 +71,16 @@ export default function ImageCompressor() {
       compressed: formatSize(compressedTotal),
       percentage: compressedTotal > 0 ? Math.round((1 - compressedTotal / originalTotal) * 100) : 0,
     }
+  }
+
+  const estimateCompressedSize = () => {
+    if (files.length === 0) return null
+    let totalOriginal = 0
+    files.forEach((file) => {
+      totalOriginal += file.original.size
+    })
+    const estimatedSize = totalOriginal * quality
+    return formatSize(estimatedSize)
   }
 
   const compressFiles = async () => {
@@ -277,11 +288,29 @@ export default function ImageCompressor() {
                 <Label className="text-lg font-semibold">Image Quality</Label>
                 <span className="text-lg font-bold text-primary">{Math.round(quality * 100)}%</span>
               </div>
+              
+              {/* Quality Input Box */}
+              <div className="flex items-center gap-3">
+                <Input
+                  type="number"
+                  min={10}
+                  max={100}
+                  value={Math.round(quality * 100)}
+                  onChange={(e) => {
+                    const val = Math.min(100, Math.max(10, Number(e.target.value) || 10))
+                    setQuality(val / 100)
+                  }}
+                  className="w-24 text-center font-semibold"
+                />
+                <span className="text-muted-foreground font-medium">%</span>
+              </div>
+              
+              {/* Slider */}
               <Slider
                 value={[quality * 100]}
                 min={10}
                 max={100}
-                step={5}
+                step={1}
                 onValueChange={(v) => setQuality(v[0] / 100)}
                 className="py-2"
               />
@@ -289,6 +318,16 @@ export default function ImageCompressor() {
                 <span>Smaller Size</span>
                 <span>Better Quality</span>
               </div>
+              
+              {/* Estimated Size Preview */}
+              {estimateCompressedSize() && (
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Estimated Compressed Size:</span>
+                    <span className="text-lg font-bold text-primary">{estimateCompressedSize()}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Output Format */}
