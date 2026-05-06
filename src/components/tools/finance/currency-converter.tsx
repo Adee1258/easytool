@@ -204,7 +204,7 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
               </div>
             </div>
 
-            <ScrollArea className="h-[380px]">
+            <ScrollArea className="h-[450px]">
               <div className="p-3 space-y-2">
                 <div className="px-2 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Popular Currencies
