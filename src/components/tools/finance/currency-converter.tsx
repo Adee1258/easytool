@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { ArrowLeftRight, Coins, RefreshCw, TrendingUp, Search, Star, Info, Clock, Shield, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -108,46 +108,6 @@ const ALL_CURRENCIES: Currency[] = [
   { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇸🇳", country: "UEMOA" },
   { code: "ZMW", name: "Zambian Kwacha", symbol: "ZK", flag: "🇿🇲", country: "Zambia" },
   { code: "ZWL", name: "Zimbabwean Dollar", symbol: "$", flag: "🇿🇼", country: "Zimbabwe" },
-  { code: "ALL", name: "Albanian Lek", symbol: "L", flag: "🇦🇱", country: "Albania" },
-  { code: "AMD", name: "Armenian Dram", symbol: "֏", flag: "🇦🇲", country: "Armenia" },
-  { code: "AZN", name: "Azerbaijani Manat", symbol: "₼", flag: "🇦🇿", country: "Azerbaijan" },
-  { code: "BAM", name: "Bosnia-Herzegovina Convertible Mark", symbol: "KM", flag: "🇧🇦", country: "Bosnia and Herzegovina" },
-  { code: "BYN", name: "Belarusian Ruble", symbol: "Br", flag: "🇧🇾", country: "Belarus" },
-  { code: "GEL", name: "Georgian Lari", symbol: "₾", flag: "🇬🇪", country: "Georgia" },
-  { code: "KGS", name: "Kyrgystani Som", symbol: "лв", flag: "🇰🇬", country: "Kyrgyzstan" },
-  { code: "MDL", name: "Moldovan Leu", symbol: "L", flag: "🇲🇩", country: "Moldova" },
-  { code: "MKD", name: "Macedonian Denar", symbol: "ден", flag: "🇲🇰", country: "North Macedonia" },
-  { code: "RSD", name: "Serbian Dinar", symbol: "дин", flag: "🇷🇸", country: "Serbia" },
-  { code: "TMT", name: "Turkmenistani Manat", symbol: "T", flag: "🇹🇲", country: "Turkmenistan" },
-  { code: "UAH", name: "Ukrainian Hryvnia", symbol: "₴", flag: "🇺🇦", country: "Ukraine" },
-  { code: "AFN", name: "Afghan Afghani", symbol: "؋", flag: "🇦🇫", country: "Afghanistan" },
-  { code: "BTN", name: "Bhutanese Ngultrum", symbol: "Nu", flag: "🇧🇹", country: "Bhutan" },
-  { code: "FJD", name: "Fijian Dollar", symbol: "$", flag: "🇫🇯", country: "Fiji" },
-  { code: "PGK", name: "Papua New Guinean Kina", symbol: "K", flag: "🇵🇬", country: "Papua New Guinea" },
-  { code: "WST", name: "Samoan Tala", symbol: "T", flag: "🇼🇸", country: "Samoa" },
-  { code: "TOP", name: "Tongan Paʻanga", symbol: "T$", flag: "🇹🇴", country: "Tonga" },
-  { code: "VUV", name: "Vanuatu Vatu", symbol: "VT", flag: "🇻🇺", country: "Vanuatu" },
-  { code: "DOP", name: "Dominican Peso", symbol: "$", flag: "🇩🇴", country: "Dominican Republic" },
-  { code: "GTQ", name: "Guatemalan Quetzal", symbol: "Q", flag: "🇬🇹", country: "Guatemala" },
-  { code: "HNL", name: "Honduran Lempira", symbol: "L", flag: "🇭🇳", country: "Honduras" },
-  { code: "JMD", name: "Jamaican Dollar", symbol: "$", flag: "🇯🇲", country: "Jamaica" },
-  { code: "KYD", name: "Cayman Islands Dollar", symbol: "$", flag: "🇰🇾", country: "Cayman Islands" },
-  { code: "NIO", name: "Nicaraguan Córdoba", symbol: "C$", flag: "🇳🇮", country: "Nicaragua" },
-  { code: "PAB", name: "Panamanian Balboa", symbol: "B/.", flag: "🇵🇦", country: "Panama" },
-  { code: "TTD", name: "Trinidad and Tobago Dollar", symbol: "TT$", flag: "🇹🇹", country: "Trinidad and Tobago" },
-  { code: "XCD", name: "East Caribbean Dollar", symbol: "$", flag: "🇱🇨", country: "Eastern Caribbean States" },
-  { code: "BBD", name: "Barbadian Dollar", symbol: "$", flag: "🇧🇧", country: "Barbados" },
-  { code: "BMD", name: "Bermudan Dollar", symbol: "$", flag: "🇧🇲", country: "Bermuda" },
-  { code: "BSD", name: "Bahamian Dollar", symbol: "$", flag: "🇧🇸", country: "Bahamas" },
-  { code: "CRC", name: "Costa Rican Colón", symbol: "₡", flag: "🇨🇷", country: "Costa Rica" },
-  { code: "CUP", name: "Cuban Peso", symbol: "$", flag: "🇨🇺", country: "Cuba" },
-  { code: "HTG", name: "Haitian Gourde", symbol: "G", flag: "🇭🇹", country: "Haiti" },
-  { code: "JOD", name: "Jordanian Dinar", symbol: "JD", flag: "🇯🇴", country: "Jordan" },
-  { code: "LBP", name: "Lebanese Pound", symbol: "£", flag: "🇱🇧", country: "Lebanon" },
-  { code: "LYD", name: "Libyan Dinar", symbol: "LD", flag: "🇱🇾", country: "Libya" },
-  { code: "MAD", name: "Moroccan Dirham", symbol: "DH", flag: "🇲🇦", country: "Morocco" },
-  { code: "SYP", name: "Syrian Pound", symbol: "£", flag: "🇸🇾", country: "Syria" },
-  { code: "YER", name: "Yemeni Rial", symbol: "﷼", flag: "🇾🇪", country: "Yemen" },
 ]
 
 const POPULAR_CURRENCIES = ["USD", "EUR", "GBP", "PKR", "INR", "AED", "SAR", "JPY", "CNY", "CAD", "AUD"]
@@ -172,17 +132,26 @@ interface CurrencySelectProps {
 function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   const filteredCurrencies = useMemo(() => {
-    const uniqueMap = new Map()
+    const unique = ALL_CURRENCIES.filter((curr, index, self) => 
+      index === self.findIndex(c => c.code === curr.code)
+    )
+    
     const query = searchQuery.toLowerCase().trim()
-    
-    ALL_CURRENCIES.forEach(c => {
-      uniqueMap.set(c.code, c)
-    })
-    
-    const unique = Array.from(uniqueMap.values())
-    
     if (!query) return unique
     
     return unique.filter(c =>
@@ -197,7 +166,7 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
   }, [value])
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" ref={containerRef}>
       <Label className="text-base font-semibold">{label}</Label>
       <div className="relative">
         <button
@@ -220,7 +189,7 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
         </button>
 
         {isOpen && (
-          <div className="fixed left-1/2 -translate-x-1/2 w-[90vw] max-w-lg mt-2 z-[9999] bg-gradient-to-br from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/30 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+          <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/30 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-transparent">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -235,7 +204,7 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
               </div>
             </div>
 
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="h-[380px]">
               <div className="p-3 space-y-2">
                 <div className="px-2 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Popular Currencies
