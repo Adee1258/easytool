@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { ArrowLeftRight, Coins, RefreshCw, TrendingUp, Search, Star, Info, Clock, Shield, Zap, Globe } from "lucide-react"
+import { ArrowLeftRight, Coins, RefreshCw, TrendingUp, Search, Star, Info, Clock, Shield, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -19,6 +19,7 @@ interface Currency {
 }
 
 const ALL_CURRENCIES: Currency[] = [
+  { code: "PKR", name: "Pakistani Rupee", symbol: "Rs", flag: "🇵🇰", country: "Pakistan" },
   { code: "USD", name: "US Dollar", symbol: "$", flag: "🇺🇸", country: "United States" },
   { code: "EUR", name: "Euro", symbol: "€", flag: "🇪🇺", country: "European Union" },
   { code: "GBP", name: "British Pound", symbol: "£", flag: "🇬🇧", country: "United Kingdom" },
@@ -78,7 +79,6 @@ const ALL_CURRENCIES: Currency[] = [
   { code: "MOP", name: "Macanese Pataca", symbol: "P", flag: "🇲🇴", country: "Macau" },
   { code: "MNT", name: "Mongolian Tugrik", symbol: "₮", flag: "🇲🇳", country: "Mongolia" },
   { code: "NPR", name: "Nepalese Rupee", symbol: "₨", flag: "🇳🇵", country: "Nepal" },
-  { code: "PKR", name: "Pakistani Rupee", symbol: "Rs", flag: "🇵🇰", country: "Pakistan" },
   { code: "TJS", name: "Tajikistani Somoni", symbol: "SM", flag: "🇹🇯", country: "Tajikistan" },
   { code: "UZS", name: "Uzbekistani Som", symbol: "лв", flag: "🇺🇿", country: "Uzbekistan" },
   { code: "AOA", name: "Angolan Kwanza", symbol: "Kz", flag: "🇦🇴", country: "Angola" },
@@ -101,16 +101,17 @@ const ALL_CURRENCIES: Currency[] = [
   { code: "SLL", name: "Sierra Leonean Leone", symbol: "Le", flag: "🇸🇱", country: "Sierra Leone" },
   { code: "SOS", name: "Somali Shilling", symbol: "Sh", flag: "🇸🇴", country: "Somalia" },
   { code: "SZL", name: "Swazi Lilangeni", symbol: "L", flag: "🇸🇿", country: "Eswatini" },
+  { code: "TND", name: "Tunisian Dinar", symbol: "DT", flag: "🇹🇳", country: "Tunisia" },
   { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh", flag: "🇹🇿", country: "Tanzania" },
   { code: "UGX", name: "Ugandan Shilling", symbol: "USh", flag: "🇺🇬", country: "Uganda" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇨🇲", country: "CEMAC (Central Africa)" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇸🇳", country: "UEMOA (West Africa)" },
+  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇨🇲", country: "CEMAC" },
+  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇸🇳", country: "UEMOA" },
   { code: "ZMW", name: "Zambian Kwacha", symbol: "ZK", flag: "🇿🇲", country: "Zambia" },
   { code: "ZWL", name: "Zimbabwean Dollar", symbol: "$", flag: "🇿🇼", country: "Zimbabwe" },
   { code: "ALL", name: "Albanian Lek", symbol: "L", flag: "🇦🇱", country: "Albania" },
   { code: "AMD", name: "Armenian Dram", symbol: "֏", flag: "🇦🇲", country: "Armenia" },
   { code: "AZN", name: "Azerbaijani Manat", symbol: "₼", flag: "🇦🇿", country: "Azerbaijan" },
-  { code: "BAM", name: "Bosnia-Herzegovina Convertible Mark", symbol: "KM", flag: "🇧🇦", country: "Bosnia & Herzegovina" },
+  { code: "BAM", name: "Bosnia-Herzegovina Convertible Mark", symbol: "KM", flag: "🇧🇦", country: "Bosnia and Herzegovina" },
   { code: "BYN", name: "Belarusian Ruble", symbol: "Br", flag: "🇧🇾", country: "Belarus" },
   { code: "GEL", name: "Georgian Lari", symbol: "₾", flag: "🇬🇪", country: "Georgia" },
   { code: "KGS", name: "Kyrgystani Som", symbol: "лв", flag: "🇰🇬", country: "Kyrgyzstan" },
@@ -133,7 +134,7 @@ const ALL_CURRENCIES: Currency[] = [
   { code: "KYD", name: "Cayman Islands Dollar", symbol: "$", flag: "🇰🇾", country: "Cayman Islands" },
   { code: "NIO", name: "Nicaraguan Córdoba", symbol: "C$", flag: "🇳🇮", country: "Nicaragua" },
   { code: "PAB", name: "Panamanian Balboa", symbol: "B/.", flag: "🇵🇦", country: "Panama" },
-  { code: "TTD", name: "Trinidad and Tobago Dollar", symbol: "TT$", flag: "🇹🇹", country: "Trinidad & Tobago" },
+  { code: "TTD", name: "Trinidad and Tobago Dollar", symbol: "TT$", flag: "🇹🇹", country: "Trinidad and Tobago" },
   { code: "XCD", name: "East Caribbean Dollar", symbol: "$", flag: "🇱🇨", country: "Eastern Caribbean States" },
   { code: "BBD", name: "Barbadian Dollar", symbol: "$", flag: "🇧🇧", country: "Barbados" },
   { code: "BMD", name: "Bermudan Dollar", symbol: "$", flag: "🇧🇲", country: "Bermuda" },
@@ -143,92 +144,10 @@ const ALL_CURRENCIES: Currency[] = [
   { code: "HTG", name: "Haitian Gourde", symbol: "G", flag: "🇭🇹", country: "Haiti" },
   { code: "JOD", name: "Jordanian Dinar", symbol: "JD", flag: "🇯🇴", country: "Jordan" },
   { code: "LBP", name: "Lebanese Pound", symbol: "£", flag: "🇱🇧", country: "Lebanon" },
-  { code: "LYD", name: "Libyan Dinar", symbol: "LD", flag: "��", country: "Libya" },
+  { code: "LYD", name: "Libyan Dinar", symbol: "LD", flag: "🇱🇾", country: "Libya" },
   { code: "MAD", name: "Moroccan Dirham", symbol: "DH", flag: "🇲🇦", country: "Morocco" },
   { code: "SYP", name: "Syrian Pound", symbol: "£", flag: "🇸🇾", country: "Syria" },
   { code: "YER", name: "Yemeni Rial", symbol: "﷼", flag: "🇾🇪", country: "Yemen" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇩🇪", country: "Germany" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇫🇷", country: "France" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "��", country: "Italy" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇪🇸", country: "Spain" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇵🇹", country: "Portugal" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇳🇱", country: "Netherlands" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇧🇪", country: "Belgium" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇱�", country: "Luxembourg" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇦🇹", country: "Austria" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇫🇮", country: "Finland" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇮🇪", country: "Ireland" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇬🇷", country: "Greece" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇨🇾", country: "Cyprus" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇲�", country: "Malta" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇸🇰", country: "Slovakia" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇸🇮", country: "Slovenia" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇱🇹", country: "Lithuania" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "��", country: "Latvia" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇪🇪", country: "Estonia" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇨🇫", country: "Central African Republic" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇹🇩", country: "Chad" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇬🇶", country: "Equatorial Guinea" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "�🇦", country: "Gabon" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇨🇩", country: "Congo (DRC)" },
-  { code: "XAF", name: "CFA Franc BEAC", symbol: "FCFA", flag: "🇨🇬", country: "Congo (Republic)" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇧🇯", country: "Benin" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇧🇫", country: "Burkina Faso" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇧🇮", country: "Burundi" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇨🇻", country: "Cabo Verde" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇨🇮", country: "Côte d'Ivoire" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "��", country: "Guinea-Bissau" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇱🇮", country: "Liberia" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇲🇱", country: "Mali" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇲🇷", country: "Mauritania" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇳🇪", country: "Niger" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "🇸🇳", country: "Senegal" },
-  { code: "XOF", name: "CFA Franc BCEAO", symbol: "CFA", flag: "��", country: "Togo" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇦🇬", country: "Antigua & Barbuda" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇧🇿", country: "Belize" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇧🇴", country: "Bolivia" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇩🇲", country: "Dominica" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇪🇨", country: "Ecuador" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇸🇻", country: "El Salvador" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇬🇾", country: "Guyana" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "�🇳", country: "Honduras" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇰🇳", country: "Saint Kitts & Nevis" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇱🇨", country: "Saint Lucia" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "��", country: "Saint Vincent & Grenadines" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇸🇷", country: "Suriname" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇺🇾", country: "Uruguay" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "�🇺", country: "Vanuatu" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇵🇼", country: "Palau" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇫�", country: "Micronesia" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇲🇭", country: "Marshall Islands" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇳�", country: "Nauru" },
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇹🇻", country: "Tuvalu" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇲🇨", country: "Monaco" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇻🇦", country: "Vatican City" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇸🇲", country: "San Marino" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇦🇩", country: "Andorra" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "��", country: "Montenegro" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇽🇰", country: "Kosovo" },
-  { code: "CHF", name: "Swiss Franc", symbol: "Fr", flag: "🇱🇮", country: "Liechtenstein" },
-  { code: "NOK", name: "Norwegian Krone", symbol: "kr", flag: "🇸🇯", country: "Svalbard & Jan Mayen" },
-  { code: "SEK", name: "Swedish Krona", symbol: "kr", flag: "🇫🇴", country: "Faroe Islands" },
-  { code: "DKK", name: "Danish Krone", symbol: "kr", flag: "🇬🇱", country: "Greenland" },
-  { code: "JOD", name: "Jordanian Dinar", symbol: "JD", flag: "🇵🇸", country: "Palestine" },
-  { code: "ILS", name: "Israeli Shekel", symbol: "₪", flag: "🇵🇸", country: "Palestine" },
-  { code: "KWD", name: "Kuwaiti Dinar", symbol: "د.ك", flag: "🇰🇬", country: "Kyrgyzstan" },
-  { code: "SAR", name: "Saudi Riyal", symbol: "﷼", flag: "🇸�", country: "Saudi Arabia" },
-  { code: "AED", name: "UAE Dirham", symbol: "د.إ", flag: "🇦🇪", country: "United Arab Emirates" },
-  { code: "QAR", name: "Qatari Riyal", symbol: "ر.ق", flag: "🇶🇦", country: "Qatar" },
-  { code: "OMR", name: "Omani Rial", symbol: "ر.ع", flag: "🇴🇲", country: "Oman" },
-  { code: "BHD", name: "Bahraini Dinar", symbol: ".د.ب", flag: "🇧🇭", country: "Bahrain" },
-  { code: "KWD", name: "Kuwaiti Dinar", symbol: "د.ك", flag: "🇰🇼", country: "Kuwait" },
-  { code: "SDG", name: "Sudanese Pound", symbol: "£", flag: "🇸🇩", country: "Sudan" },
-  { code: "SSP", name: "South Sudanese Pound", symbol: "£", flag: "�🇸", country: "South Sudan" },
-  { code: "STN", name: "São Tomé & Príncipe Dobra", symbol: "Db", flag: "🇸🇹", country: "São Tomé & Príncipe" },
-  { code: "MRO", name: "Mauritanian Ouguiya", symbol: "UM", flag: "��", country: "Mauritania" },
-  { code: "KPW", name: "North Korean Won", symbol: "₩", flag: "🇰🇵", country: "North Korea" },
-  { code: "MMK", name: "Myanmar Kyat", symbol: "K", flag: "🇲🇲", country: "Myanmar" },
-  { code: "VEF", name: "Venezuelan Bolívar", symbol: "Bs", flag: "🇻�", country: "Venezuela" },
 ]
 
 const POPULAR_CURRENCIES = ["USD", "EUR", "GBP", "PKR", "INR", "AED", "SAR", "JPY", "CNY", "CAD", "AUD"]
@@ -256,14 +175,21 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
 
   const filteredCurrencies = useMemo(() => {
     const uniqueMap = new Map()
-    const query = searchQuery.toLowerCase()
-    const filtered = ALL_CURRENCIES.filter(c =>
+    const query = searchQuery.toLowerCase().trim()
+    
+    ALL_CURRENCIES.forEach(c => {
+      uniqueMap.set(c.code, c)
+    })
+    
+    const unique = Array.from(uniqueMap.values())
+    
+    if (!query) return unique
+    
+    return unique.filter(c =>
       c.code.toLowerCase().includes(query) ||
       c.name.toLowerCase().includes(query) ||
       c.country.toLowerCase().includes(query)
     )
-    filtered.forEach(c => uniqueMap.set(`${c.code}-${c.country}`, c))
-    return Array.from(uniqueMap.values())
   }, [searchQuery])
 
   const selectedCurrency = useMemo(() => {
@@ -294,8 +220,8 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-3 z-50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="fixed left-1/2 -translate-x-1/2 w-[90vw] max-w-lg mt-2 z-[9999] bg-gradient-to-br from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/30 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+            <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-transparent">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -303,13 +229,13 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
                   placeholder="Search currency, name, or country..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 text-base rounded-xl border-primary/20 focus:border-primary"
+                  className="pl-12 h-12 text-base rounded-xl border-primary/20 focus:border-primary bg-white dark:bg-slate-900"
                   autoFocus
                 />
               </div>
             </div>
 
-            <ScrollArea className="h-[380px]">
+            <ScrollArea className="h-[400px]">
               <div className="p-3 space-y-2">
                 <div className="px-2 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Popular Currencies
@@ -340,11 +266,11 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
                 })}
                 <div className="my-3 border-t-2 border-dashed" />
                 <div className="px-2 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  All Currencies & Countries ({filteredCurrencies.filter(c => c.code !== otherValue).length})
+                  All Currencies ({filteredCurrencies.filter(c => c.code !== otherValue).length})
                 </div>
-                {filteredCurrencies.filter(c => c.code !== otherValue).map((curr, idx) => (
+                {filteredCurrencies.filter(c => c.code !== otherValue).map((curr) => (
                   <button
-                    key={`${curr.code}-${curr.country}-${idx}`}
+                    key={curr.code}
                     type="button"
                     onClick={() => {
                       onChange(curr.code)
@@ -644,11 +570,11 @@ export default function CurrencyConverter() {
             <ul className="space-y-4">
               {[
                 { icon: Zap, title: "Real-time Rates", desc: "Live exchange rate updates" },
-                { icon: Globe, title: "All Countries", desc: "195+ countries supported" },
+                { icon: Star, title: "All Countries", desc: "All countries supported" },
                 { icon: Search, title: "Easy Search", desc: "Find any country instantly" },
                 { icon: Shield, title: "100% Free", desc: "No hidden costs or subscriptions" },
                 { icon: Star, title: "Privacy First", desc: "No data stored on our servers" },
-                { icon: Globe, title: "Mobile Friendly", desc: "Works perfectly on all devices" },
+                { icon: Star, title: "Mobile Friendly", desc: "Works perfectly on all devices" },
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <item.icon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
