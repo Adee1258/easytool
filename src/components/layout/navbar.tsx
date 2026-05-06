@@ -87,6 +87,17 @@ export default function Navbar() {
     if (e.key === "Escape") setShowResults(false)
   }
 
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text
+    const regex = new RegExp(`(${query})`, 'gi')
+    const parts = text.split(regex)
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase()
+        ? <span key={i} className="bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold px-0.5 rounded">{part}</span>
+        : part
+    )
+  }
+
   const navLinks = [
     { href: "/tools", label: "All Tools" },
     { href: "/blog", label: "Blog" },
@@ -94,6 +105,14 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Search Overlay */}
+      {showResults && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          onClick={() => setShowResults(false)}
+        />
+      )}
+      
       <header className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled
@@ -204,8 +223,8 @@ export default function Navbar() {
 
               {/* Desktop Search Results */}
               {showResults && filteredTools.length > 0 && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="p-1.5">
+                <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="p-1.5 max-h-80 overflow-y-auto">
                     {filteredTools.map(tool => {
                       const IconComp = (Icons as any)[tool.icon] || Icons.Hammer
                       const color = catColors[tool.category] || "text-primary"
@@ -220,7 +239,9 @@ export default function Navbar() {
                             <IconComp className={cn("h-4 w-4", color)} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm">{tool.name}</p>
+                            <p className="font-semibold text-sm">
+                              {highlightText(tool.name, searchQuery)}
+                            </p>
                             <p className="text-xs text-muted-foreground truncate">{tool.category}</p>
                           </div>
                           <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover/r:opacity-100 flex-shrink-0" />

@@ -136,6 +136,17 @@ export default function Home() {
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text
+    const regex = new RegExp(`(${query})`, 'gi')
+    const parts = text.split(regex)
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase()
+        ? <span key={i} className="bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold px-0.5 rounded">{part}</span>
+        : part
+    )
+  }
+
   // Typing animation state
   const typingWords = ["100% Free.", "No Signup.", "Instant Results.", "Privacy First.", "Free Forever."]
   const [typingIndex, setTypingIndex] = useState(0)
@@ -167,6 +178,17 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [displayText, isDeleting, typingIndex, typingPause])
 
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text
+    const regex = new RegExp(`(${query})`, 'gi')
+    const parts = text.split(regex)
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase()
+        ? <span key={i} className="bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold px-0.5 rounded">{part}</span>
+        : part
+    )
+  }
+
   const filteredBySearch = searchQuery.trim().length > 1
     ? tools.filter(t =>
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -194,6 +216,14 @@ export default function Home() {
 
   return (
     <div className="mesh-bg min-h-screen">
+      
+      {/* Search Overlay */}
+      {showSearch && filteredBySearch.length > 0 && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          onClick={() => setShowSearch(false)}
+        />
+      )}
 
       {/* JSON-LD for Homepage */}
       <script
@@ -286,8 +316,8 @@ export default function Home() {
 
             {/* Search Results */}
             {showSearch && filteredBySearch.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="p-2">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="p-2 max-h-96 overflow-y-auto">
                   {filteredBySearch.map(tool => {
                     const IconComp = (Icons as any)[tool.icon] || Icons.Hammer
                     const colors = catColors[tool.category] || catColors["SEO & Utilities"]
@@ -302,7 +332,9 @@ export default function Home() {
                           <IconComp className={cn("h-4 w-4", colors.text)} />
                         </div>
                         <div className="flex-1 min-w-0 text-left">
-                          <p className="font-semibold text-sm">{tool.name}</p>
+                          <p className="font-semibold text-sm">
+                            {highlightText(tool.name, searchQuery)}
+                          </p>
                           <p className="text-xs text-muted-foreground truncate">{tool.category}</p>
                         </div>
                         <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover/r:opacity-100 flex-shrink-0" />
