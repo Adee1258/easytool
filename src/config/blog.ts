@@ -12,6 +12,72 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: "easytool-kya-hai",
+    title: "EasyTool Kya Hai? Sabse Behtar Free Online Tools Platform",
+    slug: "easytool-kya-hai",
+    excerpt: "EasyTool kya hai? Janein is amazing free online tools platform ke bare mein jo 50+ se bhi zyada tools provide karta hai bilkul free.",
+    content: `
+      <p>EasyTool ek aisa amazing platform hai jahan aapko 50+ se bhi zyada professional online tools milte hain bilkul free! Chahe PDF merge karna ho, image compress karna ho, WhatsApp chat analyze karna ho, ya kuch aur — EasyTool pe sab kuch available hai.</p>
+      
+      <h2>EasyTool Kyun Use Karein?</h2>
+      <p>EasyTool ke liye koi signup nahi, koi hidden charges nahi, sab kuch bilkul free! Aapki files kabhi bhi servers pe upload nahi hoti, sab kuch aapke browser mein hi process hota hai.</p>
+      
+      <ul>
+        <li><strong>100% Free:</strong> Koi paise nahi lagenge</li>
+        <li><strong>No Signup:</strong> Bas aao aur use karo</li>
+        <li><strong>Privacy First:</strong> Aapki data safe hai</li>
+        <li><strong>Mobile Friendly:</strong> Har device pe kaam karta hai</li>
+      </ul>
+
+      <h2>EasyTool Pe Kya Kya Tools Hain?</h2>
+      <p>EasyTool pe bohot saare tools available hain, jaise:</p>
+      <ul>
+        <li>PDF Tools - Merge PDF, Split PDF, Compress PDF etc.</li>
+        <li>Image Tools - Image Compressor, Resizer, BG Remover etc.</li>
+        <li>Text Tools - Word Counter, Text to Speech, Case Converter etc.</li>
+        <li>Finance Tools - EMI Calculator, Currency Converter etc.</li>
+        <li>SEO & Utilities - QR Code Generator, Meta Tag Generator etc.</li>
+        <li>AI Tools - WhatsApp Chat Analyzer, Resume ATS Checker etc.</li>
+      </ul>
+
+      <p>Ab aao aur EasyTool ka use karo! Visit <a href="/">EasyTool.live</a> aur apni productivity badhao!</p>
+    `,
+    date: "2026-05-06",
+    author: "EasyTool Team",
+    category: "Guides",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
+  },
+  {
+    id: "easytool-se-pdf-kaise-merge-karein",
+    title: "EasyTool Se PDF Kaise Merge Karein? Step-by-Step Guide",
+    slug: "easytool-se-pdf-kaise-merge-karein",
+    excerpt: "EasyTool se PDF merge karne ka aasan tareeka. Janein step-by-step kaise multiple PDF files ko ek mein combine karein bilkul free.",
+    content: `
+      <p>PDF merge karna kabhi bhi nahi aasan tha, par EasyTool ke aane ke baad ye bilkul simple ho gaya! Aaj hum janeinge ki EasyTool se PDF kaise merge karein.</p>
+      
+      <h2>Step 1: EasyTool Open Karein</h2>
+      <p>Sabse pehle aap <a href="/tools/merge-pdf">EasyTool Merge PDF</a> tool open karein.</p>
+
+      <h2>Step 2: PDF Files Upload Karein</h2>
+      <p>Ab aap apne PDF files upload karein. Aap multiple files bhi upload kar sakte hain.</p>
+
+      <h2>Step 3: Order Adjust Karein (Optional)</h2>
+      <p>Agar aap chahe to files ka order change kar sakte hain.</p>
+
+      <h2>Step 4: Merge Button Click Karein</h2>
+      <p>Bas Merge button click karein aur thodi der wait karein.</p>
+
+      <h2>Step 5: Download Karein</h2>
+      <p>Process complete hone ke baad aap apna merged PDF download kar sakte hain!</p>
+
+      <p>Itna hi simple! EasyTool se PDF merge karna bilkul free aur aasan hai. Aaj hi try karein!</p>
+    `,
+    date: "2026-05-06",
+    author: "EasyTool Team",
+    category: "Tutorials",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
+  },
+  {
     id: "1",
     title: "How to Optimize Your Resume for ATS",
     slug: "how-to-optimize-your-resume-for-ats",

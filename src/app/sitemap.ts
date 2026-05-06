@@ -36,6 +36,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily' as const,
       priority: 1,
     },
+    { 
+      url: `${baseUrl}/easytool`, 
+      lastModified: new Date(), 
+      changeFrequency: 'weekly' as const, 
+      priority: 0.95, 
+    }, 
+     { 
+      url: `${baseUrl}/easy`, 
+      lastModified: new Date(), 
+      changeFrequency: 'weekly' as const, 
+      priority: 0.95, 
+    }, 
+     { 
+      url: `${baseUrl}/tool`, 
+      lastModified: new Date(), 
+      changeFrequency: 'weekly' as const, 
+      priority: 0.95, 
+    }, 
+    { 
+      url: `${baseUrl}/easytool-online`, 
+      lastModified: new Date(), 
+      changeFrequency: 'weekly' as const, 
+      priority: 0.92, 
+    }, 
+    { 
+      url: `${baseUrl}/easytool-free`, 
+      lastModified: new Date(), 
+      changeFrequency: 'weekly' as const, 
+      priority: 0.92, 
+    },
     {
       url: `${baseUrl}/merge-pdf`,
       lastModified: new Date(),

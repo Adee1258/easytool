@@ -11,12 +11,18 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://easytool.live"),
   title: {
-    default: "EasyTool - 50+ Free Online Tools | PDF, Image, Text & More",
+    default: "EasyTool - 50+ Free Online Tools | PDF, Image & More",
     template: "%s | EasyTool - Free Online Tools"
   },
-  description: "50+ free online tools for PDF, Image, Text, Finance & SEO. No signup, no watermark, 100% private. Merge PDF, compress images, word counter, QR code generator and more.",
+  description: "EasyTool pe 50+ free online tools. PDF merge, image compress, WhatsApp analyzer aur bohot kuch — bilkul free!",
   keywords: [
-    "free online tools", "pdf tools", "image compressor", "word counter", "qr code generator",
+    "easytool",
+    "easy tool",
+    "easytool online",
+    "easytool free",
+    "free online tools",
+    "easytool.live",
+    "pdf tools", "image compressor", "word counter", "qr code generator",
     "merge pdf", "image to pdf", "text to speech", "emi calculator", "bmi calculator",
     "password generator", "json formatter", "meta tag generator", "free tools no signup"
   ],
@@ -27,8 +33,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://easytool.live",
     siteName: "EasyTool",
-    title: "EasyTool - 50+ Free Online Tools",
-    description: "50+ free online tools for PDF, Image, Text, Finance & SEO. No signup required.",
+    title: "EasyTool - Free Online Tools",
+    description: "EasyTool pe 50+ free tools",
     images: [
       {
         url: "/og-image.png",
