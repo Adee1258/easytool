@@ -126,7 +126,7 @@ export default function UnlockPDF() {
               )}
 
               <div className="flex justify-center">
-                <Button size="lg" onClick={processPDF} disabled={isProcessing} className="gap-2 h-14 px-12 bg-primary hover:bg-primary/90 shadow-xl">
+                <Button size="lg" onClick={processPDF} disabled={isProcessing} className="gap-2 h-14 px-12  shadow-xl">
                   {isProcessing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <LockOpen className="h-5 w-5" />}
                   Unlock & Download
                 </Button>

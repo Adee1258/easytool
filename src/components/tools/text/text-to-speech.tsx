@@ -134,7 +134,7 @@ export default function TextToSpeech() {
 
               <div className="flex items-end gap-3">
                 {!isSpeaking || isPaused ? (
-                  <Button onClick={speak} size="lg" className="flex-1 h-12 gap-2 bg-primary hover:bg-primary/90">
+                  <Button onClick={speak} size="lg" className="flex-1 h-12 gap-2 ">
                     <Play className="h-5 w-5 fill-current" /> {isPaused ? "Resume" : "Start Speaking"}
                   </Button>
                 ) : (

@@ -114,7 +114,7 @@ export default function RotatePDF() {
             <Button variant="outline" size="lg" onClick={() => rotate(90)} className="gap-2 h-14 px-8">
               <RotateCw className="h-5 w-5" /> Rotate Right
             </Button>
-            <Button size="lg" onClick={processPDF} disabled={isProcessing} className="gap-2 h-14 px-8 bg-primary hover:bg-primary/90">
+            <Button size="lg" onClick={processPDF} disabled={isProcessing} className="gap-2 h-14 px-8 ">
               {isProcessing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
               Apply & Download
             </Button>

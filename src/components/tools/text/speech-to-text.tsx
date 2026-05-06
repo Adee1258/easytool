@@ -180,7 +180,7 @@ export default function SpeechToText() {
             size="lg"
             onClick={toggleListening}
             className={`h-20 w-20 rounded-full shadow-2xl transition-all duration-300 ${
-              isListening ? "bg-red-500 hover:bg-red-600 scale-110" : "bg-primary hover:bg-primary/90"
+              isListening ? "bg-red-500 hover:bg-red-600 scale-110" : ""
             }`}
           >
             {isListening ? <MicOff className="h-10 w-10" /> : <Mic className="h-10 w-10" />}

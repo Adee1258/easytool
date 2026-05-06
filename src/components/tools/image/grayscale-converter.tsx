@@ -144,7 +144,7 @@ export default function GrayscaleConverter() {
           <Button variant="outline" size="lg" onClick={() => { setImage(null); setProcessedImage(null); }} className="gap-2">
             <RefreshCw className="h-5 w-5" /> Start Over
           </Button>
-          <Button size="lg" onClick={downloadImage} className="gap-2 bg-primary hover:bg-primary/90">
+          <Button size="lg" onClick={downloadImage} className="gap-2 ">
             <Download className="h-5 w-5" /> Download Result
           </Button>
         </div>

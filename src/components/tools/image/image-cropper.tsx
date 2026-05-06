@@ -194,7 +194,7 @@ export default function ImageCropper() {
           </Card>
 
           <div className="flex justify-center gap-4">
-            <Button size="lg" onClick={performCrop} disabled={isProcessing} className="gap-2 h-14 px-12 bg-primary hover:bg-primary/90 shadow-xl">
+            <Button size="lg" onClick={performCrop} disabled={isProcessing} className="gap-2 h-14 px-12  shadow-xl">
               {isProcessing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
               Crop & Download
             </Button>

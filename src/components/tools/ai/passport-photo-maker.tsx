@@ -240,7 +240,7 @@ export default function PassportPhotoMaker() {
             {/* Create Button */}
             <Button
               onClick={processPhoto}
-              className="w-full h-12 font-bold text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+              className="w-full h-12 font-bold text-base  shadow-lg shadow-primary/25"
               disabled={processing}
             >
               {processing ? (

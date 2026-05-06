@@ -129,7 +129,7 @@ export default function ThumbnailGenerator() {
                 </SelectContent>
               </Select>
             </div>
-            <Button size="lg" onClick={generateThumbnail} disabled={isProcessing} className="h-12 gap-2 bg-primary hover:bg-primary/90">
+            <Button size="lg" onClick={generateThumbnail} disabled={isProcessing} className="h-12 gap-2 ">
               {isProcessing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
               Generate & Download
             </Button>

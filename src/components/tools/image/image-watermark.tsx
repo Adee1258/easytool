@@ -217,7 +217,7 @@ export default function ImageWatermark() {
                 </Select>
               </div>
 
-              <Button onClick={applyWatermark} disabled={isProcessing} className="w-full gap-2 h-12 bg-primary hover:bg-primary/90">
+              <Button onClick={applyWatermark} disabled={isProcessing} className="w-full gap-2 h-12 ">
                 {isProcessing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
                 Download Watermarked
               </Button>

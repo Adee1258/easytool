@@ -194,7 +194,7 @@ export default function SignPDF() {
               size="lg" 
               onClick={processPDF} 
               disabled={isProcessing || !signature} 
-              className="gap-2 h-14 px-12 bg-primary hover:bg-primary/90 shadow-xl"
+              className="gap-2 h-14 px-12  shadow-xl"
             >
               {isProcessing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5" />}
               Sign & Download PDF

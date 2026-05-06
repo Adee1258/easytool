@@ -350,7 +350,7 @@ export default function ImageCompressor() {
       {files.length > 0 && (
         <div className="flex flex-col sm:flex-row gap-4">
           <Button
-            className="flex-1 h-14 text-lg font-semibold bg-primary hover:bg-primary/90"
+            className="flex-1 h-14 text-lg font-semibold"
             onClick={compressFiles}
             disabled={compressing}
           >
