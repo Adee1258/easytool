@@ -294,7 +294,7 @@ function CurrencySelect({ value, onChange, label, otherValue }: CurrencySelectPr
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-3 z-50 bg-card border-2 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="absolute top-full left-0 right-0 mt-3 z-50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
