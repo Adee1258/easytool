@@ -178,17 +178,6 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [displayText, isDeleting, typingIndex, typingPause])
 
-  const highlightText = (text: string, query: string) => {
-    if (!query) return text
-    const regex = new RegExp(`(${query})`, 'gi')
-    const parts = text.split(regex)
-    return parts.map((part, i) =>
-      part.toLowerCase() === query.toLowerCase()
-        ? <span key={i} className="bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold px-0.5 rounded">{part}</span>
-        : part
-    )
-  }
-
   const filteredBySearch = searchQuery.trim().length > 1
     ? tools.filter(t =>
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
