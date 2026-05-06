@@ -79,7 +79,7 @@ export default function ImageCompressor() {
     files.forEach((file) => {
       totalOriginal += file.original.size
     })
-    const estimatedSize = totalOriginal * quality * 0.8
+    const estimatedSize = totalOriginal * quality * 0.75
     return formatSize(estimatedSize)
   }
 
@@ -346,11 +346,16 @@ export default function ImageCompressor() {
               
               {/* Estimated Size Preview */}
               {estimateCompressedSize() && (
-                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Estimated Compressed Size:</span>
-                    <span className="text-lg font-bold text-primary">{estimateCompressedSize()}</span>
+                <div className="space-y-2">
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Estimated Compressed Size:</span>
+                      <span className="text-lg font-bold text-primary">{estimateCompressedSize()}</span>
+                    </div>
                   </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Estimated size only - actual size may vary based on image content
+                  </p>
                 </div>
               )}
             </div>
@@ -411,28 +416,39 @@ export default function ImageCompressor() {
 
       {/* Results Summary */}
       {files.some((f) => f.compressed) && (
-        <Card className="border-green-500/30 bg-green-500/5">
-          <CardContent className="p-6">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              Compression Results
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-white">
-                <p className="text-sm text-muted-foreground mb-1">Original Size</p>
-                <p className="text-2xl font-bold">{getTotalSavings().original}</p>
+        <div className="space-y-4">
+          <Card className="border-green-500/30 bg-green-500/5">
+            <CardContent className="p-6">
+              <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                Compression Results
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl bg-white">
+                  <p className="text-sm text-muted-foreground mb-1">Original Size</p>
+                  <p className="text-2xl font-bold">{getTotalSavings().original}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white">
+                  <p className="text-sm text-muted-foreground mb-1">Compressed Size</p>
+                  <p className="text-2xl font-bold">{getTotalSavings().compressed}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-green-100">
+                  <p className="text-sm text-green-700 mb-1">Total Saved</p>
+                  <p className="text-2xl font-bold text-green-700">-{getTotalSavings().percentage}%</p>
+                </div>
               </div>
-              <div className="p-4 rounded-xl bg-white">
-                <p className="text-sm text-muted-foreground mb-1">Compressed Size</p>
-                <p className="text-2xl font-bold">{getTotalSavings().compressed}</p>
-              </div>
-              <div className="p-4 rounded-xl bg-green-100">
-                <p className="text-sm text-green-700 mb-1">Total Saved</p>
-                <p className="text-2xl font-bold text-green-700">-{getTotalSavings().percentage}%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          
+          <Button
+            className="w-full h-12 text-lg font-semibold"
+            variant="outline"
+            onClick={clearAll}
+          >
+            <Upload className="mr-2 h-5 w-5" />
+            Compress Another Image
+          </Button>
+        </div>
       )}
     </div>
   )
