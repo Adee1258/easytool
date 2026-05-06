@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
-import { Upload, Download, Loader2, Image as ImageIcon, Trash2, CheckCircle2 } from "lucide-react"
+import { Upload, Download, Loader2, Image as ImageIcon, Trash2, CheckCircle2, RotateCcw } from "lucide-react"
 import imageCompression from "browser-image-compression"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
@@ -79,7 +79,7 @@ export default function ImageCompressor() {
     files.forEach((file) => {
       totalOriginal += file.original.size
     })
-    const estimatedSize = totalOriginal * quality
+    const estimatedSize = totalOriginal * quality * 0.8
     return formatSize(estimatedSize)
   }
 
@@ -89,7 +89,6 @@ export default function ImageCompressor() {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      if (file.status === "done") continue
 
       setFiles((prev) =>
         prev.map((f) => (f.id === file.id ? { ...f, status: "compressing", progress: 0 } : f))
@@ -149,6 +148,17 @@ export default function ImageCompressor() {
     setFiles([])
   }
 
+  const resetFile = (id: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id
+          ? { ...f, compressed: null, status: "pending" as const, progress: 0 }
+          : f
+      )
+    )
+    toast.info("File reset! You can recompress it.")
+  }
+
   const downloadFile = (file: CompressedFile) => {
     if (!file.compressed) return
     const a = document.createElement("a")
@@ -158,7 +168,6 @@ export default function ImageCompressor() {
   }
 
   const downloadAll = async () => {
-    const zip = new JSZip()
     const doneFiles = files.filter((f) => f.compressed)
 
     if (doneFiles.length === 0) {
@@ -166,6 +175,12 @@ export default function ImageCompressor() {
       return
     }
 
+    if (doneFiles.length === 1) {
+      downloadFile(doneFiles[0])
+      return
+    }
+
+    const zip = new JSZip()
     doneFiles.forEach((file) => {
       zip.file(`compressed-${file.original.name}`, file.compressed!)
     })
@@ -260,6 +275,16 @@ export default function ImageCompressor() {
                     {file.compressed && (
                       <Button variant="outline" size="sm" onClick={() => downloadFile(file)}>
                         <Download className="h-4 w-4 mr-1" /> Download
+                      </Button>
+                    )}
+                    {file.status === "done" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                        onClick={() => resetFile(file.id)}
+                      >
+                        <RotateCcw className="h-4 w-4" />
                       </Button>
                     )}
                     <Button
@@ -359,6 +384,11 @@ export default function ImageCompressor() {
                 <Loader2 className="mr-3 h-6 w-6 animate-spin" />
                 Compressing...
               </>
+            ) : files.some((f) => f.status === "done") ? (
+              <>
+                <RotateCcw className="mr-3 h-6 w-6" />
+                Recompress All
+              </>
             ) : (
               <>
                 Compress Images
@@ -373,7 +403,7 @@ export default function ImageCompressor() {
               onClick={downloadAll}
             >
               <Download className="mr-3 h-6 w-6" />
-              Download All
+              {files.filter((f) => f.compressed).length === 1 ? "Download Image" : "Download All"}
             </Button>
           )}
         </div>
