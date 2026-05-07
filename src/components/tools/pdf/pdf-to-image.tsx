@@ -200,10 +200,10 @@ export default function PDFToImage() {
                     <Settings2 className="h-4 w-4" /> Output Format
                   </Label>
                   <Select value={format} onValueChange={setFormat}>
-                    <SelectTrigger className="bg-card">
+                    <SelectTrigger className="bg-white dark:bg-slate-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border border-border shadow-xl">
+                    <SelectContent className="bg-white dark:bg-slate-900 border border-border shadow-xl">
                       <SelectItem value="jpg">JPG (Best for photos)</SelectItem>
                       <SelectItem value="png">PNG (Best for text/logos)</SelectItem>
                     </SelectContent>
@@ -214,10 +214,10 @@ export default function PDFToImage() {
                     <ImageIcon className="h-4 w-4" /> Image Quality
                   </Label>
                   <Select value={quality} onValueChange={setQuality}>
-                    <SelectTrigger className="bg-card">
+                    <SelectTrigger className="bg-white dark:bg-slate-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border border-border shadow-xl">
+                    <SelectContent className="bg-white dark:bg-slate-900 border border-border shadow-xl">
                       <SelectItem value="standard">Standard (72 DPI)</SelectItem>
                       <SelectItem value="high">High (150 DPI)</SelectItem>
                       <SelectItem value="ultra">Ultra (300 DPI)</SelectItem>
