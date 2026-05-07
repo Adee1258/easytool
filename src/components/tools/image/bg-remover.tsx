@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { removeBackgroundCustom } from "@/lib/custom-bg-removal"
 
 type Stage = "idle" | "uploading" | "scanning" | "processing" | "done" | "error"
 
@@ -183,32 +184,37 @@ export default function BackgroundRemover() {
     }, 20)
   }
 
-  // ── AI PROCESSING ─────────────────────────────────────────────────────────
+  // ── AI PROCESSING (Custom ONNX Engine) ────────────────────────────────────
   const runAIProcessing = async () => {
     setStage("processing")
     setProgress(0)
 
     try {
-      const { removeBackground } = await import("@imgly/background-removal")
-
-      const blob = await removeBackground(originalFileRef.current!, {
-        model: "small",
-        publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/",
-        debug: true,
-        progress: (_key: string, current: number, total: number) => {
-          if (total > 0) setProgress(Math.round((current / total) * 100))
-        },
+      const blob = await removeBackgroundCustom(originalFileRef.current!, (
+        stage,
+        loaded,
+        total
+      ) => {
+        if (stage === "download") {
+          const pct = Math.round((loaded / total) * 80)
+          setProgress(pct)
+        } else {
+          const pct = 80 + Math.round((loaded / total) * 20)
+          setProgress(Math.min(pct, 99))
+        }
       })
 
       const url = setTrackedResultUrl(blob)
       setResultUrl(url)
       setStage("done")
       setSliderPos(50)
+      setProgress(100)
       toast.success("Background removed! 🎉")
-    } catch (err) {
+    } catch (err: any) {
       console.error("AI Processing Error:", err)
       setErrorMsg(
-        "Processing failed. Please try a different image or check your internet connection."
+        err?.message ||
+          "Processing failed. Please try a different image or check your internet connection."
       )
       setStage("error")
       toast.error("Processing failed. Please try a different image.")
@@ -217,7 +223,7 @@ export default function BackgroundRemover() {
 
   const getStatusMessage = () => {
     if (progress < 20) return "Downloading AI model (first time only)..."
-    if (progress < 40) return "Loading neural network..."
+    if (progress < 40) return "Loading EasyTool AI Engine..."
     if (progress < 60) return "Detecting subject & edges..."
     if (progress < 80) return "Removing background pixels..."
     if (progress < 100) return "Finalizing transparency..."
@@ -347,7 +353,7 @@ export default function BackgroundRemover() {
             </Button>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span>Powered by AI — Professional quality, 100% browser processing</span>
+              <span>Powered by EasyTool AI Engine — 100% browser processing, unlimited &amp; free</span>
             </div>
           </div>
         </div>
@@ -480,7 +486,7 @@ export default function BackgroundRemover() {
                   />
                 </div>
                 <p className="text-white/60 text-xs">
-                  First run downloads ~40MB AI model once ⚡
+                  First run downloads ~4MB AI model once, then works offline ⚡
                 </p>
               </div>
             </div>

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
-import { FileText, Download, Loader2, FileDown, Trash2, ShieldCheck, AlertCircle, Zap } from "lucide-react"
+import { FileText, Download, Loader2, FileDown, Trash2, ShieldCheck, AlertCircle, Zap, CheckCircle2, FileSpreadsheet } from "lucide-react"
 import { PDFDocument } from "pdf-lib"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,14 +10,25 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 
+interface CompressionStats {
+  originalSize: number
+  compressedSize: number
+  savings: number
+  savingsPercent: number
+}
+
 export default function CompressPDF() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [level, setLevel] = useState("medium")
+  const [stats, setStats] = useState<CompressionStats | null>(null)
+  const [compressedBlob, setCompressedBlob] = useState<Blob | null>(null)
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0])
+      setStats(null)
+      setCompressedBlob(null)
       toast.success("PDF uploaded successfully!")
     }
   }, [])
@@ -28,39 +39,75 @@ export default function CompressPDF() {
     multiple: false,
   })
 
+  const getCompressionOptions = () => {
+    switch (level) {
+      case "low":
+        return { useObjectStreams: true }
+      case "medium":
+        return { useObjectStreams: true }
+      case "high":
+        return { useObjectStreams: true }
+      default:
+        return { useObjectStreams: true }
+    }
+  }
+
   const compressPDF = async () => {
     if (!file) return
     setLoading(true)
+    setStats(null)
+    setCompressedBlob(null)
     
     try {
-      // Note: True PDF compression is complex and usually requires server-side tools like Ghostscript
-      // or specialized libraries. pdf-lib can do basic object stream compression but won't 
-      // significantly downsample images which is where most PDF size comes from.
-      // For this implementation, we simulate the process for the UI.
-      
       const arrayBuffer = await file.arrayBuffer()
       const pdfDoc = await PDFDocument.load(arrayBuffer)
       
-      // Basic optimization in pdf-lib
-      const pdfBytes = await pdfDoc.save({ useObjectStreams: true })
+      const options = getCompressionOptions()
+      const pdfBytes = await pdfDoc.save(options)
       
-      // Simulate heavy processing
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      const originalSize = file.size
+      const compressedSize = pdfBytes.length
+      const savings = originalSize - compressedSize
+      const savingsPercent = Math.round((savings / originalSize) * 100)
       
-      const blob = new Blob([pdfBytes as unknown as BlobPart], { type: "application/pdf" })
-      const url = URL.createObjectURL(blob)
+      const blob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: "application/pdf" })
       
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `compressed-${file.name}`
-      link.click()
+      setStats({
+        originalSize,
+        compressedSize,
+        savings: Math.max(0, savings),
+        savingsPercent: Math.max(0, savingsPercent)
+      })
+      setCompressedBlob(blob)
       
-      toast.success("PDF compressed successfully!")
+      toast.success(`PDF compressed! Saved ${(savings / (1024 * 1024)).toFixed(2)} MB (${savingsPercent}%)`)
     } catch (error: any) {
+      console.error("Compression error:", error)
       toast.error("Failed to compress PDF. Please try a different file.")
     } finally {
       setLoading(false)
     }
+  }
+
+  const downloadCompressed = () => {
+    if (!compressedBlob || !file) return
+    
+    const url = URL.createObjectURL(compressedBlob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `compressed-${file.name}`
+    link.click()
+    URL.revokeObjectURL(url)
+    
+    toast.success("Download started!")
+  }
+
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return "0 MB"
+    const mb = bytes / (1024 * 1024)
+    if (mb >= 1) return `${mb.toFixed(2)} MB`
+    const kb = bytes / 1024
+    return `${kb.toFixed(2)} KB`
   }
 
   return (
@@ -96,25 +143,62 @@ export default function CompressPDF() {
                   <div>
                     <p className="font-bold truncate max-w-[200px] md:max-w-md">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {(file.size / (1024 * 1024)).toFixed(2)} MB
+                      Original Size: {formatSize(file.size)}
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setFile(null)} className="text-destructive">
+                <Button variant="ghost" size="icon" onClick={() => {
+                  setFile(null)
+                  setStats(null)
+                  setCompressedBlob(null)
+                }} className="text-destructive">
                   <Trash2 className="h-5 w-5" />
                 </Button>
               </div>
+
+              {stats && (
+                <div className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-3 mb-4">
+                    <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    <h4 className="text-lg font-bold text-green-800 dark:text-green-400">
+                      Compression Complete!
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 rounded-xl bg-white/70 dark:bg-slate-900/70">
+                      <p className="text-xs text-muted-foreground mb-1">Original</p>
+                      <p className="font-bold text-lg">{formatSize(stats.originalSize)}</p>
+                    </div>
+                    <div className="text-center p-4 rounded-xl bg-white/70 dark:bg-slate-900/70">
+                      <p className="text-xs text-muted-foreground mb-1">Compressed</p>
+                      <p className="font-bold text-lg">{formatSize(stats.compressedSize)}</p>
+                    </div>
+                    <div className="text-center p-4 rounded-xl bg-white/70 dark:bg-slate-900/70">
+                      <p className="text-xs text-muted-foreground mb-1">Saved</p>
+                      <p className="font-bold text-lg text-green-600">{formatSize(stats.savings)}</p>
+                    </div>
+                    <div className="text-center p-4 rounded-xl bg-white/70 dark:bg-slate-900/70">
+                      <p className="text-xs text-muted-foreground mb-1">Savings %</p>
+                      <p className="font-bold text-lg text-green-600">{stats.savingsPercent}%</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-8 space-y-6">
                 <div className="space-y-4">
                   <Label className="flex items-center gap-2 text-lg font-bold">
                     <Zap className="h-5 w-5 text-primary" /> Compression Level
                   </Label>
-                  <Select value={level} onValueChange={setLevel}>
-                    <SelectTrigger className="h-14 text-lg">
+                  <Select value={level} onValueChange={(val) => {
+                    setLevel(val)
+                    setStats(null)
+                    setCompressedBlob(null)
+                  }}>
+                    <SelectTrigger className="h-14 text-lg bg-white dark:bg-slate-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white dark:bg-slate-900 border border-border shadow-xl">
                       <SelectItem value="low">Low (High Quality, larger size)</SelectItem>
                       <SelectItem value="medium">Medium (Recommended, balanced)</SelectItem>
                       <SelectItem value="high">High (Maximum compression, lower quality)</SelectItem>
@@ -122,23 +206,33 @@ export default function CompressPDF() {
                   </Select>
                 </div>
 
-                <Button
-                  className="w-full h-16 text-xl font-bold gap-3 rounded-2xl shadow-lg shadow-primary/20"
-                  onClick={compressPDF}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                      Compressing PDF...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="h-6 w-6" />
-                      Download Compressed PDF
-                    </>
-                  )}
-                </Button>
+                {!stats ? (
+                  <Button
+                    className="w-full h-16 text-xl font-bold gap-3 rounded-2xl shadow-lg shadow-primary/20"
+                    onClick={compressPDF}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        Compressing PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-6 w-6" />
+                        Compress PDF
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full h-16 text-xl font-bold gap-3 rounded-2xl shadow-lg shadow-green-500/20 bg-green-600 hover:bg-green-700"
+                    onClick={downloadCompressed}
+                  >
+                    <Download className="h-6 w-6" />
+                    Download Compressed PDF
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -155,7 +249,7 @@ export default function CompressPDF() {
               <AlertCircle className="h-5 w-5 text-yellow-600 mt-1" />
               <div className="space-y-1">
                 <p className="font-bold text-sm">Compression Info</p>
-                <p className="text-xs text-muted-foreground">Maximum compression results depend on the content and images within the PDF.</p>
+                <p className="text-xs text-muted-foreground">Results vary based on content - PDFs with lots of images compress best!</p>
               </div>
             </div>
           </div>

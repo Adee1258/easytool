@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "copy:onnx-wasm": "powershell -Command \"$src='node_modules/onnxruntime-web/dist'; $dst='public/onnx-wasm'; if(-not(Test-Path $dst)){New-Item -ItemType Directory -Path $dst -Force}; Get-ChildItem $src -Filter '*.wasm' | ForEach-Object {Copy-Item $_.FullName $dst -Force}; Write-Host 'ONNX WASM copied'\"",
+    "download:bg-model": "node scripts/download-bg-model.js",
+    "postinstall": "npm run copy:onnx-wasm"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
