@@ -1,27 +1,50 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { useDropzone } from "react-dropzone"
-import { FileText, Download, Loader2, Image as ImageIcon, Trash2, Settings2, ShieldCheck, AlertCircle } from "lucide-react"
+import * as pdfjs from "pdfjs-dist"
+import { FileText, Download, Loader2, Image as ImageIcon, Trash2, Settings2, ShieldCheck, AlertCircle, CheckCircle2, Eye, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
+import JSZip from "jszip"
+import { saveAs } from "file-saver"
 
-// Note: For a real implementation, we would use pdfjs-dist
-// Since we are in a mock/senior-level starting point, we'll provide the UI and a simulation
-// In production, pdfjs-dist would be used to render PDF pages to canvas and then to images.
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+
+interface ConvertedImage {
+  pageNumber: number
+  dataUrl: string
+  selected: boolean
+}
 
 export default function PDFToImage() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
+  const [converting, setConverting] = useState(false)
   const [format, setFormat] = useState("jpg")
   const [quality, setQuality] = useState("high")
+  const [images, setImages] = useState<ConvertedImage[]>([])
+  const [totalPages, setTotalPages] = useState(0)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const getDPI = () => {
+    switch (quality) {
+      case "standard": return 72
+      case "high": return 150
+      case "ultra": return 300
+      default: return 150
+    }
+  }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0])
+      setImages([])
       toast.success("PDF file uploaded successfully!")
     }
   }, [])
@@ -33,32 +56,105 @@ export default function PDFToImage() {
   })
 
   const convertPDF = async () => {
-    if (!file) return
+    if (!file || !canvasRef.current) return
+    
+    setConverting(true)
+    setImages([])
+    
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+      setTotalPages(pdf.numPages)
+      
+      const dpi = getDPI()
+      const newImages: ConvertedImage[] = []
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const viewport = page.getViewport({ scale: dpi / 72 })
+        
+        const canvas = canvasRef.current!
+        canvas.width = viewport.width
+        canvas.height = viewport.height
+        
+        const context = canvas.getContext("2d", { willReadFrequently: true })
+        if (!context) continue
+        
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise
+        
+        const dataUrl = canvas.toDataURL(`image/${format === "jpg" ? "jpeg" : "png"}`, format === "jpg" ? 0.95 : 1.0)
+        
+        newImages.push({
+          pageNumber: i,
+          dataUrl,
+          selected: true
+        })
+      }
+      
+      setImages(newImages)
+      toast.success(`Successfully converted ${pdf.numPages} pages!`)
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to convert PDF. Please try again.")
+    } finally {
+      setConverting(false)
+    }
+  }
+
+  const toggleSelectAll = () => {
+    const allSelected = images.every(img => img.selected)
+    setImages(prev => prev.map(img => ({ ...img, selected: !allSelected })))
+  }
+
+  const toggleSelectImage = (index: number) => {
+    setImages(prev => prev.map((img, i) => 
+      i === index ? { ...img, selected: !img.selected } : img
+    ))
+  }
+
+  const downloadSelected = async () => {
+    const selectedImages = images.filter(img => img.selected)
+    if (selectedImages.length === 0) {
+      toast.error("Please select at least one image")
+      return
+    }
+
     setLoading(true)
     
     try {
-      // Simulate conversion process
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      
-      // In a real app:
-      // const pdf = await pdfjs.getDocument(URL.createObjectURL(file)).promise;
-      // for (let i = 1; i <= pdf.numPages; i++) { ... render to canvas ... }
-      
-      toast.success(`PDF successfully converted to ${format.toUpperCase()} images!`)
-      // Mock download
-      const link = document.createElement("a")
-      link.href = "#" // This would be a zip file of images
-      link.download = `converted-images.zip`
-      toast.info("Mock Download: Your images would start downloading now.")
+      if (selectedImages.length === 1) {
+        const img = selectedImages[0]
+        const link = document.createElement("a")
+        link.href = img.dataUrl
+        link.download = `page-${img.pageNumber}.${format}`
+        link.click()
+        toast.success("Image downloaded!")
+      } else {
+        const zip = new JSZip()
+        
+        for (const img of selectedImages) {
+          const base64Data = img.dataUrl.split(",")[1]
+          zip.file(`page-${img.pageNumber}.${format}`, base64Data, { base64: true })
+        }
+        
+        const content = await zip.generateAsync({ type: "blob" })
+        saveAs(content, "converted-images.zip")
+        toast.success(`${selectedImages.length} images downloaded as ZIP!`)
+      }
     } catch (error) {
-      toast.error("Failed to convert PDF. Please try again.")
+      toast.error("Failed to download images")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8">
+      <canvas ref={canvasRef} className="hidden" />
+      
       {!file ? (
         <div
           {...getRootProps()}
@@ -78,7 +174,7 @@ export default function PDFToImage() {
             <Button size="lg" className="px-8 rounded-full">Select PDF File</Button>
           </div>
         </div>
-      ) : (
+      ) : images.length === 0 ? (
         <div className="space-y-6">
           <Card className="border-2 border-primary/10 overflow-hidden">
             <CardContent className="p-6">
@@ -132,16 +228,16 @@ export default function PDFToImage() {
               <Button
                 className="w-full h-16 mt-8 text-xl font-bold gap-3 rounded-2xl shadow-lg shadow-primary/20"
                 onClick={convertPDF}
-                disabled={loading}
+                disabled={converting}
               >
-                {loading ? (
+                {converting ? (
                   <>
                     <Loader2 className="h-6 w-6 animate-spin" />
-                    Converting PDF...
+                    Converting PDF... {totalPages > 0 ? `(${images.length}/${totalPages})` : ""}
                   </>
                 ) : (
                   <>
-                    <Download className="h-6 w-6" />
+                    <ImageIcon className="h-6 w-6" />
                     Convert PDF to {format.toUpperCase()}
                   </>
                 )}
@@ -165,6 +261,86 @@ export default function PDFToImage() {
               </div>
             </div>
           </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <CheckCircle2 className="text-green-500" />
+                Conversion Complete!
+              </h2>
+              <p className="text-muted-foreground">
+                {images.length} page{images.length > 1 ? "s" : ""} converted successfully
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => { setImages([]); setFile(null) }}>
+                <X className="mr-2 h-4 w-4" />
+                Convert Another PDF
+              </Button>
+              <Button onClick={downloadSelected} disabled={loading} className="gap-2">
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                Download {images.filter(i => i.selected).length} Image{images.filter(i => i.selected).length > 1 ? "s" : ""}
+              </Button>
+            </div>
+          </div>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                <div className="flex items-center gap-3">
+                  <Checkbox 
+                    id="select-all" 
+                    checked={images.length > 0 && images.every(img => img.selected)}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                  <Label htmlFor="select-all" className="font-medium cursor-pointer">
+                    Select All Pages
+                  </Label>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {images.filter(i => i.selected).length} of {images.length} selected
+                </span>
+              </div>
+
+              <ScrollArea className="h-[500px] pr-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {images.map((img, index) => (
+                    <div 
+                      key={img.pageNumber}
+                      className={`group relative rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                        img.selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                      }`}
+                      onClick={() => toggleSelectImage(index)}
+                    >
+                      <div className="aspect-[3/4] bg-muted">
+                        <img 
+                          src={img.dataUrl} 
+                          alt={`Page ${img.pageNumber}`}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div className="p-2 bg-card/90 backdrop-blur-sm border-t">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Page {img.pageNumber}</span>
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            img.selected ? "bg-primary border-primary" : "border-muted-foreground"
+                          }`}>
+                            {img.selected && <CheckCircle2 className="w-3 h-3 text-white" />}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
