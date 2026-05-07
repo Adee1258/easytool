@@ -557,7 +557,7 @@ export default function CurrencyConverter() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-10">
-      <Card className="border-2 border-primary/20 shadow-2xl overflow-hidden">
+      <Card className="border-2 border-primary/20 shadow-2xl">
 
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 p-8 md:p-10 text-white">
