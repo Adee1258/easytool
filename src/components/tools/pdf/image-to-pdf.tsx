@@ -181,10 +181,10 @@ export default function ImageToPDF() {
                     <Settings2 className="h-4 w-4" /> Page Size
                   </Label>
                   <Select value={pageSize} onValueChange={(v) => setPageSize(v as PageSize)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-card">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-card border border-border shadow-xl">
                       <SelectItem value="a4">A4 (Standard)</SelectItem>
                       <SelectItem value="letter">Letter (US)</SelectItem>
                       <SelectItem value="legal">Legal</SelectItem>
@@ -196,10 +196,10 @@ export default function ImageToPDF() {
                     <ImageIcon className="h-4 w-4" /> Orientation
                   </Label>
                   <Select value={orientation} onValueChange={(v) => setOrientation(v as Orientation)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-card">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-card border border-border shadow-xl">
                       <SelectItem value="portrait">Portrait</SelectItem>
                       <SelectItem value="landscape">Landscape</SelectItem>
                     </SelectContent>
@@ -210,10 +210,10 @@ export default function ImageToPDF() {
                     <Settings2 className="h-4 w-4" /> Margin
                   </Label>
                   <Select value={margin} onValueChange={(v) => setMargin(v as Margin)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-card">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-card border border-border shadow-xl">
                       <SelectItem value="none">No Margin</SelectItem>
                       <SelectItem value="small">Small</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
