@@ -92,8 +92,9 @@ export default function PDFToImage() {
         
         const renderContext = {
           canvasContext: context,
-          viewport: viewport
-        }
+          viewport: viewport,
+          canvas: canvas
+        } as any
         
         await page.render(renderContext).promise
         
