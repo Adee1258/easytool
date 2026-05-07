@@ -82,8 +82,9 @@ export default function PDFToImage() {
         
         await page.render({
           canvasContext: context,
-          viewport: viewport
-        }).promise
+          viewport: viewport,
+          canvas: canvas
+        } as any).promise
         
         const dataUrl = canvas.toDataURL(`image/${format === "jpg" ? "jpeg" : "png"}`, format === "jpg" ? 0.95 : 1.0)
         
