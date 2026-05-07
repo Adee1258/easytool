@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 
 export const metadata: Metadata = {
   title: "EasyTool - 50+ Free Online Tools | PDF, Image & More",
-  description: "EasyTool - Best free online tools platform. PDF merge, image compress, WhatsApp chat analyzer and 50+ tools, bilkul free, no signup.",
+  description: "EasyTool - Best free online tools platform. PDF merge, image compress, WhatsApp chat analyzer and 50+ tools, completely free, no signup.",
   keywords: [
     "easytool",
     "easy tool",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://easytool.live/easytool" },
   openGraph: {
     title: "EasyTool - 50+ Free Online Tools",
-    description: "EasyTool pe 50+ free online tools. PDF merge, image compress, WhatsApp analyzer aur bohot kuch.",
+    description: "EasyTool has 50+ free online tools. PDF merge, image compress, WhatsApp analyzer and much more.",
     url: "https://easytool.live/easytool",
     siteName: "EasyTool",
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "EasyTool - 50+ Free Online Tools",
-    description: "EasyTool pe 50+ free online tools bilkul free.",
+    description: "EasyTool has 50+ free online tools completely free.",
   },
 }
 
@@ -71,14 +71,14 @@ export default function EasytoolSeoPage() {
               </h1>
 
               <p className="text-muted-foreground text-xl leading-relaxed">
-                EasyTool - Sabse behtar <strong>free online tools</strong> platform. <strong>PDF merge</strong>, <strong>image compress</strong>, <strong>WhatsApp chat analyzer</strong> aur 50+ se bhi zyada tools bilkul free, no signup required.
+                EasyTool - The best <strong>free online tools</strong> platform. <strong>PDF merge</strong>, <strong>image compress</strong>, <strong>WhatsApp chat analyzer</strong> and 50+ more tools completely free, no signup required.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/">
                   <Button size="lg" className="bg-violet-600 hover:bg-violet-700 font-black rounded-xl h-14 px-10 shadow-xl shadow-violet-500/25 w-full sm:w-auto text-lg">
                     <Sparkles className="mr-3 h-6 w-6" />
-                    EasyTool Use Karein
+                    Use EasyTool
                   </Button>
                 </Link>
               </div>
@@ -126,19 +126,19 @@ export default function EasytoolSeoPage() {
           <div className="lg:col-span-2 space-y-16">
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Kya Hai?
+                What is EasyTool?
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                EasyTool ek aisa amazing platform hai jahan aapko 50+ se bhi zyada professional online tools milte hain bilkul free! Chahe <strong>PDF merge</strong> karna ho, <strong>image compress</strong> karna ho, <strong>WhatsApp chat analyze</strong> karna ho, ya kuch aur — EasyTool pe sab kuch available hai.
+                EasyTool is an amazing platform where you get 50+ professional online tools completely free! Whether you need to <strong>merge PDF</strong>, <strong>compress images</strong>, <strong>analyze WhatsApp chats</strong>, or anything else - everything is available on EasyTool.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                EasyTool ke liye koi signup nahi, koi hidden charges nahi, sab kuch bilkul free! Aapki files kabhi bhi servers pe upload nahi hoti, sab kuch aapke browser mein hi process hota hai.
+                No signup required for EasyTool, no hidden charges, everything completely free! Your files are never uploaded to servers, everything processes right in your browser.
               </p>
             </section>
 
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Pe Kya Kya Tools Hain?
+                What Tools are Available on EasyTool?
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {[
@@ -160,14 +160,14 @@ export default function EasytoolSeoPage() {
 
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Kyun Use Karein?
+                Why Use EasyTool?
               </h2>
               <div className="space-y-5">
                 {[
-                  { step: "1", title: "100% Free", desc: "Koi paise nahi lagenge, bilkul free unlimited use." },
-                  { step: "2", title: "No Signup", desc: "Bas aao aur use karo, koi login ya signup ki zarurat nahi." },
-                  { step: "3", title: "Privacy First", desc: "Aapki files kabhi servers pe upload nahi hoti, sab browser mein process hota hai." },
-                  { step: "4", title: "Mobile Friendly", desc: "Har device pe kaam karta hai - desktop, mobile, tablet sab pe." },
+                  { step: "1", title: "100% Free", desc: "No costs, completely free unlimited use." },
+                  { step: "2", title: "No Signup", desc: "Just visit and use, no login or signup required." },
+                  { step: "3", title: "Privacy First", desc: "Your files are never uploaded to servers, everything processes in browser." },
+                  { step: "4", title: "Mobile Friendly", desc: "Works on every device - desktop, mobile, tablet all." },
                 ].map(s => (
                   <div key={s.step} className="flex gap-5 p-6 rounded-2xl border border-border bg-card">
                     <div className="w-12 h-12 rounded-xl bg-violet-600 flex items-center justify-center text-white font-black text-xl flex-shrink-0">
@@ -182,7 +182,7 @@ export default function EasytoolSeoPage() {
               </div>
               <Link href="/">
                 <Button className="bg-violet-600 hover:bg-violet-700 font-black rounded-xl h-12 px-10 shadow-lg shadow-violet-500/20 text-lg mt-4">
-                  EasyTool Start Karein <ArrowRight className="ml-2 h-5 w-5" />
+                  Start Using EasyTool <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </section>
@@ -191,11 +191,11 @@ export default function EasytoolSeoPage() {
               <div className="flex items-center gap-4">
                 <Shield className="h-8 w-8 text-violet-600" />
                 <h2 className="text-2xl font-black">
-                  EasyTool - 100% Safe aur Private
+                  EasyTool - 100% Safe and Private
                 </h2>
               </div>
               <p className="text-muted-foreground leading-relaxed text-lg">
-                EasyTool use karte waqt aapki privacy sabse zaroori hai. Aapki files kabhi bhi humare servers pe upload nahi hoti, sab kuch aapke browser mein hi JavaScript ke through process hota hai. Koi data store nahi hota, koi tracking nahi hota.
+                Your privacy is most important when using EasyTool. Your files are never uploaded to our servers, everything processes right in your browser through JavaScript. No data stored, no tracking.
               </p>
             </section>
           </div>
@@ -206,7 +206,7 @@ export default function EasytoolSeoPage() {
               <div>
                 <p className="font-black text-2xl leading-tight">Ready to use EasyTool?</p>
                 <p className="text-white/80 text-sm mt-2 leading-relaxed">
-                  Abhi EasyTool visit karein aur 50+ free tools use karein bilkul free.
+                  Visit EasyTool now and use 50+ free tools completely free.
                 </p>
               </div>
               <Link href="/">

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 
 export const metadata: Metadata = {
   title: "EasyTool Free - 100% Free Online Tools | EasyTool",
-  description: "EasyTool Free - Sabse behtar 100% free online tools. PDF merge, image compress, WhatsApp chat analyzer, 50+ tools bilkul free, no charges.",
+  description: "EasyTool Free - The best 100% free online tools. PDF merge, image compress, WhatsApp chat analyzer, 50+ tools completely free, no charges.",
   keywords: [
     "easytool",
     "easy tool",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "EasyTool Free - 100% Free Online Tools",
-    description: "EasyTool Free - sabse behtar free online tools bilkul free.",
+    description: "EasyTool Free - the best free online tools completely free.",
   },
 }
 
@@ -70,14 +70,14 @@ export default function EasytoolFreeSeoPage() {
               </h1>
 
               <p className="text-muted-foreground text-xl leading-relaxed">
-                <strong>EasyTool Free</strong> - Sabse behtar <strong>100% free online tools</strong> platform. Koi paise nahi, koi hidden charges nahi, koi ads nahi — bilkul free!
+                <strong>EasyTool Free</strong> - The best <strong>100% free online tools</strong> platform. No costs, no hidden charges, no ads - completely free!
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/">
                   <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 font-black rounded-xl h-14 px-10 shadow-xl shadow-emerald-500/25 w-full sm:w-auto text-lg">
                     <Gift className="mr-3 h-6 w-6" />
-                    Free Tools Use Karein
+                    Use Free Tools
                   </Button>
                 </Link>
               </div>
@@ -128,10 +128,10 @@ export default function EasytoolFreeSeoPage() {
           <div className="lg:col-span-2 space-y-16">
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Free - Kya Kya Free Hai?
+                EasyTool Free - What's Free?
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                <strong>EasyTool Free</strong> pe sab kuch bilkul free hai! Koi paise nahi lagenge, koi limits nahi, koi ads nahi!
+                Everything on <strong>EasyTool Free</strong> is completely free! No costs, no limits, no ads!
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                 {[
@@ -150,14 +150,14 @@ export default function EasytoolFreeSeoPage() {
 
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Free Pe Free Mein Kya Benefits Hain?
+                What Benefits Do You Get with EasyTool Free?
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {[
-                  { icon: "🆓", title: "100% Free", desc: "Har tool bilkul free, kabhi bhi koi paise nahi lagenge." },
-                  { icon: "🚫", title: "No Ads", desc: "Koi ads nahi, clean experience." },
+                  { icon: "🆓", title: "100% Free", desc: "Every tool completely free, no costs ever." },
+                  { icon: "🚫", title: "No Ads", desc: "No ads, clean experience." },
                   { icon: "∞", title: "No Limits", desc: "Unlimited use, no daily limits, no file size limits." },
-                  { icon: "🔒", title: "No Signup", desc: "Aao aur use karo, login/signup ki zarurat nahi." },
+                  { icon: "🔒", title: "No Signup", desc: "Just visit and use, no login/signup required." },
                 ].map((item, i) => (
                   <div key={i} className="p-6 rounded-2xl border border-border bg-card space-y-3">
                     <span className="text-4xl">{item.icon}</span>
@@ -172,11 +172,11 @@ export default function EasytoolFreeSeoPage() {
               <div className="flex items-center gap-4">
                 <Gift className="h-8 w-8 text-emerald-600" />
                 <h2 className="text-2xl font-black">
-                  EasyTool Free - Hamesha Free Rahega!
+                  EasyTool Free - Always Free!
                 </h2>
               </div>
               <p className="text-muted-foreground leading-relaxed text-lg">
-                <strong>EasyTool Free</strong> hamesha free rahega! Aap kabhi bhi koi paise nahi denge, kabhi bhi koi limits nahi honge.
+                <strong>EasyTool Free</strong> will always be free! You will never pay anything, there will never be any limits.
               </p>
             </section>
           </div>
@@ -187,7 +187,7 @@ export default function EasytoolFreeSeoPage() {
               <div>
                 <p className="font-black text-2xl leading-tight">Start for Free!</p>
                 <p className="text-white/80 text-sm mt-2 leading-relaxed">
-                  EasyTool Free abhi visit karein aur 50+ free tools use karein bilkul free.
+                  Visit EasyTool Free now and use 50+ free tools completely free.
                 </p>
               </div>
               <Link href="/">

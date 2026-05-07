@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 
 export const metadata: Metadata = {
   title: "EasyTool Online - 50+ Free Online Tools | EasyTool",
-  description: "EasyTool Online - Best free online tools. PDF merge, image compress, WhatsApp chat analyzer, 50+ tools bilkul free, no signup, online use.",
+  description: "EasyTool Online - Best free online tools. PDF merge, image compress, WhatsApp chat analyzer, 50+ tools completely free, no signup, online use.",
   keywords: [
     "easytool",
     "easy tool",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://easytool.live/easytool-online" },
   openGraph: {
     title: "EasyTool Online - 50+ Free Online Tools",
-    description: "EasyTool Online pe 50+ free online tools. PDF merge, image compress, WhatsApp analyzer sab online available.",
+    description: "EasyTool Online has 50+ free online tools. PDF merge, image compress, WhatsApp analyzer all available online.",
     url: "https://easytool.live/easytool-online",
     siteName: "EasyTool",
     type: "website",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "EasyTool Online - 50+ Free Online Tools",
-    description: "EasyTool Online - sabse behtar free online tools platform.",
+    description: "EasyTool Online - the best free online tools platform.",
   },
 }
 
@@ -70,14 +70,14 @@ export default function EasytoolOnlineSeoPage() {
               </h1>
 
               <p className="text-muted-foreground text-xl leading-relaxed">
-                <strong>EasyTool Online</strong> - Sabse behtar <strong>free online tools</strong> platform. Koi download nahi, koi install nahi — bas browser open karein aur tools use karein!
+                <strong>EasyTool Online</strong> - The best <strong>free online tools</strong> platform. No download, no install - just open your browser and use the tools!
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/">
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 font-black rounded-xl h-14 px-10 shadow-xl shadow-blue-500/25 w-full sm:w-auto text-lg">
                     <Globe className="mr-3 h-6 w-6" />
-                    EasyTool Online Use Karein
+                    Use EasyTool Online
                   </Button>
                 </Link>
               </div>
@@ -127,23 +127,23 @@ export default function EasytoolOnlineSeoPage() {
           <div className="lg:col-span-2 space-y-16">
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Online Kyun Best Hai?
+                Why is EasyTool Online the Best?
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                <strong>EasyTool Online</strong> ka sabse bada fayda ye hai ki aapko kuch download ya install karne ki zarurat nahi! Bas apne browser mein jayein aur tools start karein.
+                The biggest advantage of <strong>EasyTool Online</strong> is that you don't need to download or install anything! Just go to your browser and start using the tools.
               </p>
             </section>
 
             <section className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-black">
-                EasyTool Online Pe Kya Kar Sakte Hain?
+                What Can You Do on EasyTool Online?
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {[
-                  { icon: "📄", title: "PDF Merge Online", desc: "Multiple PDF files ko online combine karein, bilkul free." },
-                  { icon: "🖼️", title: "Image Compress Online", desc: "Images ko online compress karein, quality maintain karte hue." },
-                  { icon: "💬", title: "WhatsApp Analyzer Online", desc: "WhatsApp chats ko online analyze karein, deep insights ke saath." },
-                  { icon: "📝", title: "Word Counter Online", desc: "Words, characters count karein online, koi install nahi." },
+                  { icon: "📄", title: "PDF Merge Online", desc: "Combine multiple PDF files online, completely free." },
+                  { icon: "🖼️", title: "Image Compress Online", desc: "Compress images online while maintaining quality." },
+                  { icon: "💬", title: "WhatsApp Analyzer Online", desc: "Analyze WhatsApp chats online with deep insights." },
+                  { icon: "📝", title: "Word Counter Online", desc: "Count words, characters online, no install required." },
                 ].map((item, i) => (
                   <div key={i} className="p-6 rounded-2xl border border-border bg-card space-y-3">
                     <span className="text-4xl">{item.icon}</span>
@@ -158,11 +158,11 @@ export default function EasytoolOnlineSeoPage() {
               <div className="flex items-center gap-4">
                 <Globe className="h-8 w-8 text-blue-600" />
                 <h2 className="text-2xl font-black">
-                  Koi Download Nahi, Bas Online Use
+                  No Download, Just Use Online
                 </h2>
               </div>
               <p className="text-muted-foreground leading-relaxed text-lg">
-                <strong>EasyTool Online</strong> har device pe kaam karta hai - Windows, Mac, Android, iOS, sab pe! Bas browser open karein, EasyTool visit karein aur tools use karein.
+                <strong>EasyTool Online</strong> works on every device - Windows, Mac, Android, iOS, all! Just open your browser, visit EasyTool and use the tools.
               </p>
             </section>
           </div>
@@ -173,7 +173,7 @@ export default function EasytoolOnlineSeoPage() {
               <div>
                 <p className="font-black text-2xl leading-tight">Start Using Now!</p>
                 <p className="text-white/80 text-sm mt-2 leading-relaxed">
-                  EasyTool Online abhi visit karein aur 50+ free tools use karein.
+                  Visit EasyTool Online now and use 50+ free tools.
                 </p>
               </div>
               <Link href="/">
