@@ -63,7 +63,13 @@ export default function PDFToImage() {
     
     try {
       const arrayBuffer = await file.arrayBuffer()
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+      const loadingTask = pdfjs.getDocument({
+        data: arrayBuffer,
+        useWorkerFetch: false,
+        standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/standard_fonts/`
+      })
+      
+      const pdf = await loadingTask.promise
       setTotalPages(pdf.numPages)
       
       const dpi = getDPI()
@@ -71,20 +77,25 @@ export default function PDFToImage() {
       
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i)
-        const viewport = page.getViewport({ scale: dpi / 72 })
+        const scale = dpi / 72
+        const viewport = page.getViewport({ scale })
         
         const canvas = canvasRef.current!
-        canvas.width = viewport.width
-        canvas.height = viewport.height
+        const outputScale = window.devicePixelRatio || 1
+        canvas.width = Math.floor(viewport.width * outputScale)
+        canvas.height = Math.floor(viewport.height * outputScale)
         
         const context = canvas.getContext("2d", { willReadFrequently: true })
         if (!context) continue
         
-        await page.render({
+        context.scale(outputScale, outputScale)
+        
+        const renderContext = {
           canvasContext: context,
-          viewport: viewport,
-          canvas: canvas
-        } as any).promise
+          viewport: viewport
+        }
+        
+        await page.render(renderContext).promise
         
         const dataUrl = canvas.toDataURL(`image/${format === "jpg" ? "jpeg" : "png"}`, format === "jpg" ? 0.95 : 1.0)
         
@@ -98,8 +109,8 @@ export default function PDFToImage() {
       setImages(newImages)
       toast.success(`Successfully converted ${pdf.numPages} pages!`)
     } catch (error) {
-      console.error(error)
-      toast.error("Failed to convert PDF. Please try again.")
+      console.error("PDF conversion error:", error)
+      toast.error(`Failed to convert PDF: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setConverting(false)
     }
